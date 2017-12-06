@@ -198,13 +198,13 @@
 \begin{frame}
   \begin{block}{Laplace equation}
     \begin{equation*}
-      \scalebox{1.4}{$\laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}$}
+      \laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
     \end{equation*}
   \end{block}
 
   \begin{block}{Wave equation}
     \begin{equation*}
-      \scalebox{1.4}{$\qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{\delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})}{\abs{\vb{r} - \vb{r}'}}$}
+      \qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{\delta(\vb{r} - \vb{r}')}{\abs{\vb{r} - \vb{r}'}} \delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})
     \end{equation*}
   \end{block}
 \end{frame}
