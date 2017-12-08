@@ -8,6 +8,8 @@
 \usepackage{graphicx}
 \usepackage{physics}
 \usepackage{ragged2e}
+\usepackage{filecontents}
+\usepackage{siunitx}
 
 \usepackage{pgfplots}
 \pgfplotsset{width=\textwidth, height=0.494427\textwidth}
@@ -20,7 +22,7 @@
 \usefonttheme{serif}
 
 \title{Optically-Active Media}
-\subtitle{The QuEST for fast models}
+\subtitle{The QuEST for light-matter interactions}
 \date{December 20, 2017}
 \author{Connor Glosser}
 \institute{Michigan State University}
@@ -59,14 +61,6 @@
         \item Introductory workshops (highschool and college level)
       \end{itemize}
   \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \begin{center}
-    \includegraphics[width=0.3\textwidth]{figures/einstein_tongue.jpg}
-    \hspace{0.1cm}
-    \includegraphics[width=0.3\textwidth]{figures/tesla_chair.jpg}
-  \end{center}
 \end{frame}
 
 \section{Designing an algorithm}
@@ -130,6 +124,14 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}
+  \begin{center}
+    \includegraphics[width=0.3\textwidth]{figures/einstein_tongue.jpg}
+    \hspace{0.1cm}
+    \includegraphics[width=0.3\textwidth]{figures/tesla_chair.jpg}
+  \end{center}
+\end{frame}
+
 \begin{frame}{Simulated quantum dot = two-level system}
   \begin{columns}[c]
     \column{0.3\textwidth}
@@ -146,7 +148,7 @@
 
       \begin{block}{Liouville equation}
         \begin{equation*}
-          \dv{\hat{\rho}}{t} = \commutator{\hat{\mathcal{H}}}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]; \quad \hat{\rho} = \dyad{\psi}{\psi}
+          \dv{\hat{\rho}}{t} = -\frac{i}{\hbar}\commutator{\hat{\mathcal{H}}}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]; \quad \hat{\rho} = \dyad{\psi}{\psi}
         \end{equation*}
         \hfill {\tiny(mixed-state analogue of Schr\"odinger equation)}
       \end{block}
@@ -155,59 +157,33 @@
 
 \begin{frame}
   \begin{columns}
-    \column{0.5\textwidth}
-      \begin{equation*}
-        \hat{\mathcal{H}} = \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \qty\big(\vb{d} \cdot \vb{E}(t))^* & \hbar \omega_0)
-      \end{equation*}
-      \begin{itemize}
-        \item Unperterbed $\hat{\mathcal{H}}$ diagonalized by $\ket{0}, \ket{1}$.
-        \item Couples evolution to $\vb{E}$-field
-        \item $\vb{d} = \matrixelement{0}{e \hat{\vb{r}}}{1}$
-      \end{itemize}
-
-    \column{0.5\textwidth}
-      \begin{equation*}
-        \hat{\mathcal{D}}\qty[\hat{\rho}] = \mqty((\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
-      \end{equation*}
-      \begin{itemize}
-        \item Phenomenological dissipator
-        \item Returns $\hat{\rho}$ to ground state with characteristic $T_1, T_2$ times
-      \end{itemize}
+    \begin{column}{0.5\textwidth}
+        \begin{equation*}
+          \pdv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
+        \end{equation*}
+        \begin{itemize}
+          \item Density matrix representation %Mixed-state analogue of the Schr\"odinger equation
+          \item $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenologically) incorporates decay and decoherence
+          \item Rabi oscillations
+          \item One wavefunction/dot
+            \begin{itemize}
+              \item No universal wavefunction
+              \item \emph{Classical} electromagnetic propagation
+            \end{itemize}
+          \item Exponentially-fitted predictor/corrector
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \input{figures/example_evolution}
+      \begin{align*}
+        \hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
+        \hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
+      \end{align*}
+    \end{column}
   \end{columns}
 \end{frame}
 
 \subsection{Electromagnetics}
-
-\begin{frame}{Lightning review of (linear) Green's functions}
-  To solve the following differential equation for $a(x)$ \ldots
-  \begin{equation*}
-    \hat{\mathcal{L}}\qty[a(x)] = b(x)
-  \end{equation*}
-  \ldots it's far easier to \emph{first} find the Green's function,
-  \begin{equation*}
-    \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
-  \end{equation*}
-  Then,
-  \begin{align*}
-    \hat{\mathcal{L}}\qty[a(x)] &= \int \delta(x - x') b(x') \dd{x'} \\
-                                &= \int \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
-                   \Aboxed{a(x) &= \int g(x, x') b(x') \dd{x'}}
-  \end{align*}
-\end{frame}
-
-\begin{frame}
-  \begin{block}{Laplace equation}
-    \begin{equation*}
-      \laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
-    \end{equation*}
-  \end{block}
-
-  \begin{block}{Wave equation}
-    \begin{equation*}
-      \qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{\delta(\vb{r} - \vb{r}')}{\abs{\vb{r} - \vb{r}'}} \delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})
-    \end{equation*}
-  \end{block}
-\end{frame}
 
 \begin{frame}{Maxwell's equations}
   %\begin{alignat*}{2}
@@ -224,48 +200,56 @@
 
 \begin{frame}
   \begin{equation*}
-    \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
+    \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J}) \to \vb{E}(\vb{r}, t) = \mathfrak{F}\qty{\vb{P}}, \quad \partial_t \vb{P} \equiv \vb{J}
   \end{equation*}
-\end{frame}
-
-\section{Speeding things up}
-
-\begin{frame}{Layered redundancies}
-  \begin{itemize}
-    \item Monochromatic transitions $\rightarrow$ \alert{rotating-wave approximation}
-    \item Smooth propagator $\rightarrow$ \alert{grid compression}
-    \item Translational invariance $\rightarrow$ \alert{FFT diagonalization}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \begin{columns}[T]
-    \column{0.5\textwidth}
-      \centering
-      \input{figures/time_basis_function}
-
-    \column{0.5\textwidth}
-      \begin{block}{Space/time discretization}
-        \begin{equation*}
-          \tilde{\vb{P}}(\vb{r}, t) = \sum_{\ell = 0}^{N_s - 1} \sum_{m = 0}^{N_t - 1} \tilde{\mathcal{A}}_\ell^{(m)}\vb{S}_\ell(\vb{r}) T(t - m \, \Delta t)
+  \vspace{-0.8cm}
+  \begin{columns}
+    \begin{column}{0.7\textwidth}
+      \begin{equation*}
         \end{equation*}
-      \end{block}
-      \begin{itemize}
-        \item $\vb{S}_\ell(\vb{r}) = \vb{d}_\ell \delta(\vb{r} - \vb{r}_\ell)$
-        \item $T(t) \rightarrow$ Lagrange polynomials
-          \begin{itemize}
-            \item causal, interpolatory, differentiable
-          \end{itemize}
-      \end{itemize}
+        \begin{gather*}
+          \mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int
+              \left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} + \\
+              \left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
+                \frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
+                \frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
+              )
+            \, \mathrm{d}^3 \mathbf{r'}
+        \end{gather*}
+        \begin{itemize}
+          \item \emph{Classical} electric field
+          \item Incorporates short and long-range effects
+          \item Automatic radiation boundary conditions
+          \item Point-to-point communication; no finite-element mesh
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \centering
+      \includegraphics[width=0.8\textwidth]{figures/dipoles_2.png}
+    \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}{Solution methodology}
+  \begin{enumerate}
+    \item Predict $\hat{\mathbf{\rho}}(t + \Delta t)$
+      \begin{enumerate}
+        \item Map $\hat{\mathbf{\rho}}(t + \Delta t)$ to $\vb{P}(\vb{r}, t + \Delta t)$
+      \end{enumerate}
+    \item Calculate $\vb{E}(\vb{r}, t + \Delta t) = \mathfrak{F}\qty{\vb{P}(\vb{r}, t + \Delta t)}$
+    \item Use $\displaystyle \vb{E}(\vb{r}, t + \Delta t)$ to calculate $\displaystyle \partial_t \hat{\rho} = -\frac{i}{\hbar} \commutator{\hat{\mathcal{H}}\qty\big(\vb{E}(t + \Delta t))}{\hat{\rho}(t + \Delta t)} - \hat{\mathcal{D}}\qty[\hat{\rho}(t + \Delta t)]$
+    \item Use $\partial_t \hat{\rho}$ to correct $\hat{\rho}(t + \Delta t)$
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}
   \begin{block}{Marching-on-in-Time}
     \begin{equation*}
-      \tilde{\mathcal{L}}^{(m)} + \sum_{k = 0}^m \tilde{\mathcal{Z}}^{(k)} \tilde{\mathcal{A}}^{(m-k)} = \tilde{\mathcal{F}}^{(m)}
+      \tilde{\mathcal{L}}^{(m)} + \sum_{k = 0}^m \tilde{\mathcal{Z}}^{(k)} \tilde{\mathcal{A}}^{(m-k)} = \tilde{\mathcal{F}}^{(m)}; \quad \tilde{\mathcal{A}}^{(m)}_n = 2 * \real{\rho_{01, n}(m \, \Delta t)}
     \end{equation*}
   \end{block}
+
+  \vspace{-0.5cm}
   \begin{equation*}
     \mqty(\tilde{\mathcal{L}}^{(0)} \\ \tilde{\mathcal{L}}^{(1)} \\ \tilde{\mathcal{L}}^{(2)} \\ \tilde{\mathcal{L}}^{(3)} \\ \tilde{\mathcal{L}}^{(4)}) +
     \mqty(
@@ -279,11 +263,39 @@
     \mqty(\tilde{\mathcal{F}}^{(0)} \\ \tilde{\mathcal{F}}^{(1)} \\ \tilde{\mathcal{F}}^{(2)} \\ \tilde{\mathcal{F}}^{(3)} \\ \tilde{\mathcal{F}}^{(4)})
   \end{equation*}
 
+  \vspace{-0.5cm}
   \begin{equation*}
     \tilde{\mathcal{L}}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \tilde{\vb{E}}_L (\vb{r}, m\, \Delta t)\rangle \quad
     \tilde{\mathcal{Z}}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \tilde{\mathfrak{F}}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
     \tilde{\mathcal{F}}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \tilde{\vb{E}} (\vb{r}, m\, \Delta t)\rangle
   \end{equation*}
+
+  \begin{block}{Predictor/corrector}
+    \begin{equation*}
+      \rho(t_{m + 1}) \leftarrow \sum_{w = {-1}}^{W - 1} \qty{\mathcal{P}_{w}^{(0)} / \mathcal{C}_{w}^{(0)}} \rho(t_{m-w}) + \qty{\mathcal{P}_{w}^{(0)}/ \mathcal{C}_{w}^{(1)}} \dot{\rho}(t_{m - w}) \qquad
+    \end{equation*}
+  \end{block}
+\end{frame}
+
+
+\section{Speeding things up}
+
+\begin{frame}{Layered redundancies}
+  \begin{center}
+    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2)$
+  \end{center}
+  \only<2->{
+    \begin{itemize}
+      \item Monochromatic transitions $\rightarrow$ \alert{rotating-wave approximation}
+      \item Smooth propagator $\rightarrow$ \alert{grid compression}
+      \item Translational invariance $\rightarrow$ \alert{FFT diagonalization}
+    \end{itemize}
+  }
+  \only<3->{
+    \begin{center}
+      Improved algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s)$
+    \end{center}
+  }
 \end{frame}
 
 \section{QuEST}
@@ -339,6 +351,65 @@
 
     \end{tikzpicture}
   %\end{center}
+\end{frame}
+
+\begin{frame}[standout]
+  Questions?
+\end{frame}
+
+\appendix
+
+\begin{frame}{Lightning review of (linear) Green's functions}
+  To solve the following differential equation for $a(x)$ \ldots
+  \begin{equation*}
+    \hat{\mathcal{L}}\qty[a(x)] = b(x)
+  \end{equation*}
+  \ldots it's far easier to \emph{first} find the Green's function,
+  \begin{equation*}
+    \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
+  \end{equation*}
+  Then,
+  \begin{align*}
+    \hat{\mathcal{L}}\qty[a(x)] &= \int \delta(x - x') b(x') \dd{x'} \\
+                                &= \int \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
+                   \Aboxed{a(x) &= \int g(x, x') b(x') \dd{x'}}
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Laplace equation}
+    \begin{equation*}
+      \laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
+    \end{equation*}
+  \end{block}
+
+  \begin{block}{Wave equation}
+    \begin{equation*}
+      \qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{\delta(\vb{r} - \vb{r}')}{\abs{\vb{r} - \vb{r}'}} \delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})
+    \end{equation*}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \centering
+      \input{figures/time_basis_function}
+
+    \column{0.5\textwidth}
+      \begin{block}{Space/time discretization}
+        \begin{equation*}
+          \tilde{\vb{P}}(\vb{r}, t) = \sum_{\ell = 0}^{N_s - 1} \sum_{m = 0}^{N_t - 1} \tilde{\mathcal{A}}_\ell^{(m)}\vb{S}_\ell(\vb{r}) T(t - m \, \Delta t)
+        \end{equation*}
+      \end{block}
+      \begin{itemize}
+        \item $\vb{S}_\ell(\vb{r}) = \vb{d}_\ell \delta(\vb{r} - \vb{r}_\ell)$
+        \item $T(t) \rightarrow$ Lagrange polynomials
+          \begin{itemize}
+            \item causal, interpolatory, differentiable
+          \end{itemize}
+      \end{itemize}
+  \end{columns}
 \end{frame}
 
 \end{document}
