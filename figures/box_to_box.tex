@@ -11,14 +11,16 @@
   \node[red, anchor=east] at (o1) {$\vb{r}_j$};
   \draw[color=red] (3.8, 0.1) node[circle, fill, inner sep=1pt](o2){};
 
+  \node[blue, anchor=east] at (0.5, 0.5) {$\vb{u}$};
   \draw[color=blue, ->] (s1) -- (0.5, 0.5);
   \draw[color=blue, ->] (s2) -- (0.5, 0.5);
   \draw[color=blue, ->] (s3) -- (0.5, 0.5);
 
+  \node[red, anchor=west] at (3.5, 0.5) {$\vb{v}$};
   \draw[color=red, ->] (3.5, 0.5) -- (o1);
   \draw[color=red, ->] (3.5, 0.5) -- (o2);
 
-  \draw[->, thick] (0.5, 0.5) to [bend left] node[pos=0.5, above]{box-to-box} (3.5, 0.5);
+  \draw[->, thick] (0.5, 0.5) to [bend left] node[pos=0.5, above]{grid-to-grid} (3.5, 0.5);
 
   \node[blue, anchor=north] at (0.5, 0) {source};
   \node[red, anchor=north] at (3.5, 0) {observer};
