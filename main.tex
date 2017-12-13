@@ -37,21 +37,6 @@
 
 \maketitle
 
-\section{About me}
-
-\begin{frame}
-  \vspace{0.7cm}
-  \begin{columns}[c]
-    \column{0.5\textwidth}
-      \hfill \includegraphics[width=0.8\textwidth]{figures/coding.jpg} \\ \vspace{0.6cm}
-      \hfill \includegraphics[width=0.8\textwidth]{figures/collaboration.jpg}
-
-    \column{0.5\textwidth}
-      \includegraphics[width=0.8\textwidth]{figures/strava_cropped.jpg} \vspace{0.6cm}
-      \includegraphics[width=0.8\textwidth]{figures/dnd.jpg}
-  \end{columns}
-\end{frame}
-
 \begin{frame}{Things I've worked on}
   \begin{itemize}
     \item Radiation models (particularly quantum optics: QuEST)
@@ -72,63 +57,6 @@
 \section{Making an algorithm}
 
 \begin{frame}
-  \vspace{-1cm}
-  \begin{columns}
-    \begin{column}{0.25\textwidth}
-      \begin{center}
-        Photovoltaics
-      \end{center}
-    \end{column}
-
-    \begin{column}{0.25\textwidth}
-      \begin{center}
-        Next-gen displays
-      \end{center}
-    \end{column}
-
-    \begin{column}{0.25\textwidth}
-      \begin{center}
-        Biological contrast
-      \end{center}
-    \end{column}
-
-    \begin{column}{0.25\textwidth}
-      \begin{center}
-        Quantum computing
-      \end{center}
-    \end{column}
-
-  \end{columns}
-
-  \begin{columns}
-    \begin{column}{0.25\textwidth}
-      \begin{figure}
-        \includegraphics[width=\textwidth]{figures/devices/quantum_dot_solar_cell.jpg}
-      \end{figure}
-    \end{column}
-
-    \begin{column}{0.25\textwidth}
-      \begin{figure}
-        \includegraphics[width=\textwidth]{figures/devices/quantum_dot_tv.jpg}
-      \end{figure}
-    \end{column}
-
-    \begin{column}{0.25\textwidth}
-      \begin{figure}
-        \vspace{-1.2em}
-        \includegraphics[width=\textwidth, height=0.4\textheight]{figures/devices/contrast.jpg}
-      \end{figure}
-    \end{column}
-
-    \begin{column}{0.25\textwidth}
-      \begin{figure}
-        \includegraphics[width=\textwidth]{figures/devices/quantum_computer.jpg}
-      \end{figure}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}
   \begin{center}
     \includegraphics[width=0.3\textwidth]{figures/einstein_tongue.jpg}
     \hspace{0.1cm}
@@ -136,64 +64,9 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Simulated quantum dot = two-level system}
-  \begin{columns}[c]
-    \column{0.3\textwidth}
-      \centering
-      \input{figures/bloch_sphere}
-
-    \column{0.7\textwidth}
-      \begin{itemize}
-        \item ``Artifical atoms'' (tuneable spectrum)
-        \item Two-level quantum state: $\ket*{\psi} = \alpha \ket{0} + \beta \ket{1}$
-        \item $\Delta \mathcal{E} \sim$ optical frequencies; radius $\ll \lambda$
-        \item Dynamical absorbtion and emission
-      \end{itemize}
-
-      \begin{block}{Liouville equation}
-        \begin{equation*}
-          \dv{\hat{\rho}}{t} = -\frac{i}{\hbar}\commutator{\hat{\mathcal{H}}}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]; \quad \hat{\rho} = \dyad{\psi}{\psi}
-        \end{equation*}
-        \hfill {\tiny(mixed-state analogue of Schr\"odinger equation)}
-      \end{block}
-  \end{columns}
-\end{frame}
-
-\begin{frame}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-        \begin{equation*}
-          \dv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
-        \end{equation*}
-        \begin{itemize}
-          \item Density matrix representation
-          \item $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenologically) incorporates decay and decoherence
-          \item Rabi oscillations
-          \item One wavefunction/dot
-            \begin{itemize}
-              \item No universal wavefunction
-              \item \emph{Classical} electromagnetic propagation
-            \end{itemize}
-          \item Exponentially-fitted predictor/corrector
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \input{figures/example_evolution}
-      \begin{align*}
-        \hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
-        \hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
-      \end{align*}
-    \end{column}
-  \end{columns}
-\end{frame}
-
 \subsection{Electromagnetics}
 
 \begin{frame}{Maxwell's equations}
-  %\begin{alignat*}{2}
-    %\div \vb{E} &= 4 \pi k_1 \rho  \qquad &  \curl \vb{B} &= 4 \pi k_2 \alpha \vb{J} + \frac{k_2 \alpha}{k_1} \pdv{\vb{E}}{t} \\
-    %\curl \vb{E} &= -k_3 \pdv{\vb{B}}{t} \qquad & \div \vb{B} &= 0
-  %\end{alignat*}
   \begin{align*}
     \scalebox{2}{$\div \vb{E}$} & \scalebox{2}{$\; = 4 \pi k_1 \rho$} &  \scalebox{1.5}{\text{Gauss}}\\
     \scalebox{2}{$\curl \vb{B}$} & \scalebox{2}{$\; = 4 \pi k_2 \alpha \vb{J} + \frac{k_2 \alpha}{k_1} \pdv{\vb{E}}{t}$} & \scalebox{1.5}{\text{Amp\`ere}} \\
@@ -203,23 +76,29 @@
 \end{frame}
 
 \begin{frame}{Lightning review of (linear) Green's functions}
-  \only<1>{
-    To solve the following differential equation for $a(x)$ \ldots
-    \begin{equation*}
-      \hat{\mathcal{L}}\qty[a(x)] = b(x)
-    \end{equation*}
-    \ldots it's far easier to \emph{first} find the Green's function,
-    \begin{equation*}
-      \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
-    \end{equation*}
-    Then,
-    \begin{align*}
-      \hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
-                                  &= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
-                     \Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
-    \end{align*}
+  \only<1-3>{
+    \onslide<1-3>{
+      To solve the following differential equation for $a(x)$ \ldots
+      \begin{equation*}
+        \hat{\mathcal{L}}\qty[a(x)] = b(x)
+      \end{equation*}
+    }
+    \onslide<2-3>{
+      \ldots it's far easier to \emph{first} find the Green's function,
+      \begin{equation*}
+        \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
+      \end{equation*}
+    }
+    \onslide<3>{
+      Then,
+      \begin{align*}
+        \hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
+                                    &= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
+                       \Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
+      \end{align*}
+    }
   }
-  \only<2>{
+  \only<4>{
     \begin{block}{Laplace equation}
       \begin{equation*}
         \laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
@@ -234,80 +113,7 @@
   }
 \end{frame}
 
-\begin{frame}
-  \begin{equation*}
-    \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J}) \to \vb{E}(\vb{r}, t) = \mathfrak{F}\qty{\vb{P}}, \quad \partial_t \vb{P} \equiv \vb{J}
-  \end{equation*}
-  \vspace{-0.8cm}
-  \begin{columns}
-    \begin{column}{0.7\textwidth}
-      \begin{equation*}
-        \end{equation*}
-        \begin{gather*}
-          \mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
-              \left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} + \\
-              \left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
-                \frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
-                \frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
-              )
-            \, \mathrm{d}^3 \mathbf{r'}
-        \end{gather*}
-        \begin{itemize}
-          \item Incorporates short and long-range effects
-          \item Automatic radiation boundary conditions
-          \item Point-to-point communication; no finite-element mesh
-          \item \alert{Four derivatives, two spatial and two temporal}
-        \end{itemize}
-    \end{column}
-    \begin{column}{0.3\textwidth}
-      \centering
-      \includegraphics[width=0.8\textwidth]{figures/dipoles_2.png}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Solution methodology}
-  \begin{enumerate}
-    \item Predict $\hat{\mathbf{\rho}}(t + \Delta t)$
-      \begin{enumerate}
-        \item Map $\hat{\mathbf{\rho}}(t + \Delta t)$ to $\vb{P}(\vb{r}, t + \Delta t)$
-      \end{enumerate}
-    \item Calculate $\vb{E}(\vb{r}, t + \Delta t) = \mathfrak{F}\qty{\vb{P}(\vb{r}, t + \Delta t)}$
-    \item Use $\displaystyle \vb{E}(\vb{r}, t + \Delta t)$ to calculate $\displaystyle \partial_t \hat{\rho} = -\frac{i}{\hbar} \commutator{\hat{\mathcal{H}}\qty\big(\vb{E}(t + \Delta t))}{\hat{\rho}(t + \Delta t)} - \hat{\mathcal{D}}\qty[\hat{\rho}(t + \Delta t)]$
-    \item Use $\partial_t \hat{\rho}$ to correct $\hat{\rho}(t + \Delta t)$
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}{Discretization of the system}
-  \begin{columns}[T]
-    \column{0.5\textwidth}
-      \centering
-      \input{figures/time_basis_function}
-
-    \column{0.5\textwidth}
-      \begin{equation*}
-        \tilde{\vb{P}}(\vb{r}, t) = \sum_{\ell = 0}^{N_s - 1} \sum_{m = 0}^{N_t - 1} \tilde{\mathcal{A}}_\ell^{(m)}\vb{S}_\ell(\vb{r}) T(t - m \, \Delta t)
-      \end{equation*}
-      \begin{itemize}
-        \item $\vb{S}_\ell(\vb{r}) = \vb{d}_\ell \delta(\vb{r} - \vb{r}_\ell)$
-        \item $T(t) \rightarrow$ Lagrange polynomials
-          \begin{itemize}
-            \item causal, interpolatory, differentiable
-          \end{itemize}
-      \end{itemize}
-        \vspace{-0.3cm}
-        \begin{align*}
-          T(t) &= \sum_{j = 0}^p \lambda_j(t) \\
-          \lambda_j(t) &=
-          \begin{cases}
-            \frac{(1 - \tau)_j}{j!} \frac{(1 + \tau)_{p + j}}{(p + j)!} \quad & j - 1 \le \tau < j \\
-            0 &\text{otherwise}
-          \end{cases}
-        \end{align*}
-  \end{columns}
-\end{frame}
-
-\begin{frame}
+\begin{frame}{Classical electrodynamics: iteratively solving a matrix equation}
   \begin{block}{Marching-on-in-Time}
     \begin{equation*}
     \oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
@@ -328,27 +134,79 @@
     \underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
   \end{equation*}
 
-  %\vspace{-0.5cm}
-  %\begin{equation*}
-    %\oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
-    %\oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
-    %\oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
-  %\end{equation*}
+  \begin{equation*}
+    \oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
+    \oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
+    \oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
+  \end{equation*}
+\end{frame}
 
+\subsection{Quantum mechanics}
+
+\begin{frame}{Simulated quantum dot = two-level quantum system}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \begin{block}{Liouville equation}
+        \begin{equation*}
+          \dv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
+        \end{equation*}
+        \hfill {\tiny(mixed-state analogue of Schr\"odinger equation)}
+      \end{block}
+
+      \begin{itemize}
+        \item Density matrix representation
+        \item $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenologically) incorporates decay and decoherence
+        \item Rabi oscillations
+        \item One wavefunction/dot
+          \begin{itemize}
+            \item No universal wavefunction
+            \item \emph{Classical} electromagnetic propagation
+          \end{itemize}
+      \end{itemize}
+
+    \column{0.5\textwidth}
+      \begin{center}
+        \input{figures/example_evolution}
+      \end{center}
+
+      \vspace{-1.0cm}
+      \begin{align*}
+        \hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
+        \hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
+      \end{align*}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Solution methodology}
+  \begin{enumerate}
+    \item Predict $\hat{\mathbf{\rho}}(t + \Delta t)$
+      \begin{enumerate}
+        \item Map $\hat{\mathbf{\rho}}(t + \Delta t)$ to $\vb{P}(\vb{r}, t + \Delta t)$
+      \end{enumerate}
+    \item Calculate $\vb{E}(\vb{r}, t + \Delta t) = \mathfrak{F}\qty{\vb{P}(\vb{r}, t + \Delta t)}$
+      \begin{itemize}
+        \item retardation, interpolation, causality, derivatives
+      \end{itemize}
+    \item Use $\displaystyle \vb{E}(\vb{r}, t + \Delta t)$ to calculate $\displaystyle \partial_t \hat{\rho} = -\frac{i}{\hbar} \commutator{\hat{\mathcal{H}}\qty\big(\vb{E}(t + \Delta t))}{\hat{\rho}(t + \Delta t)} - \hat{\mathcal{D}}\qty[\hat{\rho}(t + \Delta t)]$
+    \item Use $\partial_t \hat{\rho}$ to correct $\hat{\rho}(t + \Delta t)$
+  \end{enumerate}
+  
   \begin{block}{Predictor/corrector}
     \begin{equation*}
-      \rho(t_{m + 1}) \leftarrow \sum_{w = {-1}}^{W - 1} \qty{\mathcal{P}_{w}^{(0)} / \mathcal{C}_{w}^{(0)}} \rho(t_{m-w}) + \qty{\mathcal{P}_{w}^{(0)}/ \mathcal{C}_{w}^{(1)}} \dot{\rho}(t_{m - w}) \qquad
+    \hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = \alert{-1}}^{W - 1} \qty{\mathcal{P}_{w}^{(0)} / \mathcal{C}_{w}^{(0)}} \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}_{w}^{(1)}/ \mathcal{C}_{w}^{(1)}} \, \partial_t \hat{\rho}(t_{m - w}) \qquad
     \end{equation*}
   \end{block}
 \end{frame}
 
-\begin{frame}
+
+\begin{frame}{Collective dynamics}
   \vspace{0.5cm}
-  \only<1>{\input{figures/pair_density_stats}}
-  \only<2>{\input{figures/high_density_stats}}
+  \begin{center}
+    \input{figures/high_density_stats}
+  \end{center}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Population hotspots (energy confinement)}
   \begin{center}
     \begin{tikzpicture}
       \begin{axis}[
@@ -361,201 +219,21 @@
           point meta min=0.32,
           point meta max=0.40,
           colorbar style={
-              width=0.8\textwidth,
+              width=0.75\textwidth,
               xtick={0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40},
               xticklabels={$\le 0.32$, $0.33$, $0.34$, $0.35$, $0.36$, $0.37$, $0.38$, $0.39$, $0.40 \le$}
           }]
           \addplot [draw=none] coordinates {(0,0)};
       \end{axis}
     \end{tikzpicture} \\
-    \includegraphics[width=\textwidth]{figures/tube/tube_print_0.png} \\
-    \includegraphics[width=\textwidth]{figures/tube/tube_print_1.png} \\
-    \includegraphics[width=\textwidth]{figures/tube/tube_print_2.png} \\
-    \includegraphics[width=\textwidth]{figures/tube/tube_print_3.png}
+    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_0.png} \\
+    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_1.png} \\
+    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_2.png} \\
+    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_3.png}
   \end{center}
 \end{frame}
 
 \section{Making it fast}
-
-\begin{frame}{Layered redundancies}
-  \begin{center}
-    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2)$
-  \end{center}
-  \vphantom{
-    \parbox{\linewidth}{
-      \begin{block}{Rotating-wave approximation}
-        High-frequency terms barely affect dynamics; formulate equations without them.
-      \end{block}
-      \begin{block}{Fewer degrees-of-freedom}
-        $g(\vb{r}, \vb{r}')$ has the same value at large distances; aggregate sources and transmit once.
-      \end{block}
-      \begin{block}{Imposed structure}
-        $g(\vb{r}, \vb{r}') = \vb{g}(\abs{\vb{r} - \vb{r}'})$; employ FFT to accelerate $\oper{Z}\cdot\oper{A}$.
-      \end{block}
-      \begin{center}
-        Improved algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s)$
-      \end{center}
-    }
-  }
-\end{frame}
-
-\begin{frame}
-  \includegraphics[width=\textwidth, height=0.5cm]{figures/Helium_spectrum_visible}
-      \begin{block}{Liouville equation (rotating frame)}
-        \begin{gather*}
-          \dv{\tilde{\rho}}{t} = -\frac{i}{\hbar} \commutator{\hat{U}\hat{\oper{H}}\hat{U}^\dagger - i\hbar \hat{V}}{\tilde{\rho}} - \hat{\oper{D}}\qty[\tilde{\rho}]; \quad \hat{U} = \mathrm{diag}(1, e^{i \omega_L t}), \quad \hat{V} = \hat{U} \dv{\hat{U}}{t}
-        \end{gather*}
-      \end{block}
-
-      \begin{gather*}
-        \tilde{\mathfrak{F}}\{\tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
-        \qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
-        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
-        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
-        \, \dd[3]{\vb{r'}}
-      \end{gather*}
-\end{frame}
-
-\begin{frame}
-  \input{figures/frame_comparison}
-\end{frame}
-
-\begin{frame}{Layered redundancies}
-  \begin{center}
-    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2)$
-  \end{center}
-  \begin{block}{Rotating-wave approximation}
-    High-frequency terms barely affect dynamics; formulate equations without them.
-  \end{block}
-  \vphantom{
-    \parbox{\linewidth}{
-      \begin{block}{Fewer degrees-of-freedom}
-        $g(\vb{r}, \vb{r}')$ has the same value at large distances; aggregate sources and transmit once.
-      \end{block}
-      \begin{block}{Imposed structure}
-        $g(\vb{r}, \vb{r}') = \vb{g}(\abs{\vb{r} - \vb{r}'})$; employ FFT to accelerate $\oper{Z}\cdot\oper{A}$.
-      \end{block}
-    }
-  }
-  \begin{center}
-    Improved algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t N_s}{\alpha})$
-  \end{center}
-\end{frame}
-
-\begin{frame}
-  \begin{equation*}
-    \vb{E}(\vb{r}, t) = \int_{} g(\vb{r}, \vb{r}') \, \vb{P}(\vb{r}', t_R) \dd[3]{\vb{r}'}
-    %\vb{E}(\textcolor{red}{\vb{r}}, t) = \int_{} g(\textcolor{red}{\vb{r}}, \textcolor{blue}{\vb{r}'}) \, \vb{P}(\textcolor{blue}{\vb{r}'}, t_R) \dd[3]{\textcolor{blue}{\vb{r}'}}
-  \end{equation*}
-  \begin{center}
-    \input{figures/box_to_box}
-  \end{center}
-  \begin{block}{Source-to-grid, grid-to-grid, grid-to-source}
-    \begin{equation*}
-      \mathcal{Z}^\text{far}_{ij} = \sum_{\textcolor{red}{\vb{v}} \in C_j} \sum_{\textcolor{blue}{\vb{u}} \in C_i} \Lambda_{j\textcolor{red}{\vb{v}}} \, g(\textcolor{red}{\vb{v}}, \textcolor{blue}{\vb{u}}) \, \Lambda_{i\textcolor{blue}{\vb{u}}}
-    \end{equation*}
-  \end{block}
-\end{frame}
-
-\begin{frame}{Determination of the $\Lambda$s}
-  \begin{block}{Multipole expansion}
-    \begin{equation*}
-      \underbrace{\int_{} \psi_i(\vb{r}) (x - x_0)^{m_x} (y - y_0)^{m_y} (z - z_0)^{m_z}}_{Q_{i\vb{m}}} - \sum_{\vb{u} \in C_i} \Lambda_{i \vb{u}} \underbrace{\delta(\vb{r} - \vb{u}) \dd[3]{\vb{r}}}_{W_{\vb{m}\vb{u}}} = 0
-    \end{equation*}
-  \end{block}
-  \begin{columns}
-    \column{0.7\textwidth}
-      \begin{itemize}
-        \item Grid discretization sufficient to recover $k_0 = \omega_0/c$ spatial variation
-        \item Instantaneous ``propagation'' from source to grid
-        \item Recover $\grad \div \vb{J}$ from $\grad \div Q_{i\vb{m}}$
-      \end{itemize}
-
-    \column{0.3\textwidth}
-      \begin{block}{Least-squares fit}
-        \begin{equation*}
-          \sum_{\vb{u} \in C_i} W_{\vb{m}\vb{u}} \Lambda_{i \vb{u}} = Q_{i\vb{m}}
-        \end{equation*}
-      \end{block}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Layered redundancies}
-  \begin{center}
-    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2)$
-  \end{center}
-  \begin{block}{Rotating-wave approximation}
-    High-frequency terms barely affect dynamics; formulate equations without them.
-  \end{block}
-  \begin{block}{Fewer degrees-of-freedom}
-    $g(\vb{r}, \vb{r}')$ has the same value at large distances; aggregate sources and transmit once.
-  \end{block}
-  \vphantom{
-    \parbox{\linewidth}{
-      \begin{block}{Imposed structure}
-        $g(\vb{r}, \vb{r}') = \vb{g}(\abs{\vb{r} - \vb{r}'})$ redundant on grid; employ FFT accelerate $\oper{Z}\cdot\oper{A}$.
-      \end{block}
-    }
-  }
-  \begin{center}
-    Improved algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} \qty(\frac{N_s}{\beta})^2)$
-  \end{center}
-\end{frame}
-
-\begin{frame}{Exploiting translational invariance}
-  $g_{ij} = g(\vb{r}_i, \vb{r}_j)$ matrix becomes \emph{symmetric} and \emph{Toeplitz}\ldots
-  \begin{columns}
-    \column{0.5\textwidth}
-      \begin{equation*}
-        g = \mqty(a & b & c & d \\ b & a & b & c \\ c & b & a & c \\ d & c & b & a)
-      \end{equation*}
-
-    \column{0.5\textwidth}
-      \begin{center}
-        \includegraphics[width=0.5\textwidth]{figures/toep1d.pdf}
-      \end{center}
-  \end{columns}
-  \hfill \ldots in one dimension
-\end{frame}
-
-\begin{frame}{Exploiting translational invariance}
-  We can augment Toeplitz matrices to make them \emph{circulant}
-  \begin{columns}
-    \column{0.5\textwidth}
-    \begin{equation*}
-      g_a \cdot \vb{x}_a = \qty(
-       \begin{array}{cccc|cccc}
-         a & b & c & d & 0 & d & c & b \\
-         b & a & b & c & d & 0 & d & c \\
-         c & b & a & b & c & d & 0 & d \\
-         d & c & b & a & b & c & d & 0 \\ \hline
-         0 & d & c & b & a & b & c & d \\
-         d & 0 & d & c & b & a & b & c \\
-         c & d & 0 & d & c & b & a & b \\
-         b & c & d & 0 & d & c & b & a \\
-       \end{array}) \cdot \mqty(x_0 \\ x_1 \\ x_2 \\ x_3 \\ 0 \\ 0 \\ 0 \\ 0)
-    \end{equation*}
-
-    \column{0.5\textwidth}
-      \begin{center}
-        \includegraphics[width=0.6\textwidth]{figures/circ1d.pdf}
-      \end{center}
-
-  \end{columns}
-
-  \begin{equation*}
-    g_a \cdot \vb{x}_a = \overbrace{F^\dagger \big(\underbrace{D \vphantom{F \cdot \vb{x}_a}}_\text{FFT} \cdot \; (\underbrace{F \cdot \vb{x}_a)}_\text{FFT}\big)}^\text{IFFT}
-  \end{equation*}
-\end{frame}
-
-\begin{frame}{Exploiting translational invariance (in three dimensions)}
-  \begin{columns}
-    \column{0.5\textwidth}
-      \hfill \includegraphics[width=0.0875\textwidth]{figures/toep3d.pdf}
-    \column{0.5\textwidth}
-      \includegraphics[width=0.7\textwidth]{figures/circ3d.pdf}
-  \end{columns}
-\end{frame}
 
 \begin{frame}{Layered redundancies}
   \begin{center}
@@ -575,6 +253,40 @@
   \end{center}
 \end{frame}
 
+\begin{frame}{Smooth, translationally-invariant operators}
+  \begin{equation*}
+    \vb{E}(\vb{r}, t) = \int_{} g(\vb{r}, \vb{r}') \, \vb{P}(\vb{r}', t_R) \dd[3]{\vb{r}'}
+  \end{equation*}
+  \vfill
+  \begin{center}
+    \only<1>{\input{figures/box_to_box_messy}}
+    \only<2>{\input{figures/box_to_box}}
+    \only<3>{
+      \begin{columns}
+        \column{0.5\textwidth}
+          \hfill\includegraphics[height=5cm]{figures/toep3d}
+
+        \column{0.5\textwidth}
+          \begin{itemize}
+            \item $\oper{Z} \cdot \oper{P} \to \Lambda_o \oper{Z}_{os} \Lambda_s \cdot \oper{P}$
+            \item Reduced number of ``particles''
+            \item Toeplitz matrix structure
+            \item Convert to circulant matrix and diagonalize with FFT
+            \item Only works with distant particles
+          \end{itemize}
+      \end{columns}
+    }
+    
+  \end{center}
+\end{frame}
+
+\begin{frame}{Frame comparison}
+  \vspace{0.5cm}
+  \begin{center}
+    \input{figures/frame_comparison}
+  \end{center}
+\end{frame}
+
 \begin{frame}{Future work}
   \begin{itemize}
     \item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
@@ -590,16 +302,15 @@
 \begin{frame}
   \centering
   \vspace{0.5cm}
-  \includegraphics[height=\textheight]{figures/github.png}
+  \href{https://www.github.com/cglosser/quest}{
+    \includegraphics[height=\textheight]{figures/github.png}
+  }
 \end{frame}
 
-\begin{frame}
-  %\begin{center}
+\begin{frame}{Hierarchy}
+  \begin{center}
     \begin{tikzpicture}[node distance=0.8cm, >=latex]
-      \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
-      \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
-      \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
-      \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+      \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
       \tikzstyle{arrow} = [thick,->,>=stealth]
 
       \node (quest) [startstop] {\textbf{QuEST}};
@@ -609,35 +320,58 @@
       \draw [arrow] (ode) -- (quest);
       \draw [arrow] (radiation) -- (quest);
 
-      \node (interactions) [startstop, right= of radiation] {Interactions};
+      \node (interactions) [startstop, below= of radiation] {Interactions};
       \node (integration) [startstop, below= of ode] {Integration};
-      \node (history) [startstop, below= of integration] {History};
-      \node (rhs) [startstop, right= of integration] {RHS functions};
+      \node (rhs) [startstop, below= of integration] {RHS functions};
+      \node (history) [startstop, right= of rhs] {History};
 
       \draw [arrow] (interactions) -- (radiation);
       \draw [arrow] (integration) -- (ode);
       \draw [arrow] (history) -- (integration);
       \draw [arrow] (rhs) -- (integration);
 
-      \node (pulse) [startstop, below= of radiation, xshift=2cm] {Pulse};
-      \node (historyI) [startstop, below= of interactions, xshift=2cm] {History};
+      \node (pulse) [startstop, right= of radiation] {Pulse};
 
       \draw [arrow](pulse) -- (interactions);
-      \draw [arrow](historyI) -- (interactions);
 
-      \node (interpolation) [startstop, right= of interactions] {Interpolation};
-      \node (direct) [startstop, below= of historyI, xshift=-2cm] {Direct};
-      \node (aim) [startstop, below= of historyI, xshift=2cm] {AIM};
+      \node (direct) [startstop, right= of interactions] {Direct};
+      \node (interpolation) [startstop, below= of interactions] {Interpolation};
+      \node (aim) [startstop, below= of direct] {AIM};
 
       \node (fft) [startstop, below= of aim] {FFT};
 
-      \draw [arrow] (interpolation) -- (historyI);
-      \draw [arrow] (direct) -- (historyI);
-      \draw [arrow] (aim) -- (historyI);
+      \draw [arrow] (history) -- (interpolation);
+      \draw [arrow] (interpolation) -- (interactions);
+      \draw [arrow] (direct) -- (interpolation);
+      \draw [arrow] (aim) -- (interpolation);
       \draw [arrow] (fft) -- (aim);
 
     \end{tikzpicture}
-  %\end{center}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Features}
+  \begin{itemize}
+    \item Modern C++
+    \item CMake
+    \item Object-oriented
+      \begin{itemize}
+        \item Integrator, RHS function
+        \item Interactions
+        \item Assistance classes 
+      \end{itemize}
+    \item Unit tests
+      \begin{itemize}
+        \item Modular enough for unit tests!
+      \end{itemize}
+    \item Additional tools
+      \begin{itemize}
+        \item Data manipulation
+        \item Visualization
+        \item Math
+      \end{itemize}
+    \item Developed on git (branches, tags, etc.)
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[standout]
@@ -677,6 +411,46 @@
         \item Sufficiently high order to recover $\partial_t^2 \vb{P}$, $\partial_t \vb{P}$, $\vb{P}$
         \item Time-domain solution imposes causality requirement: $T(t) = 0 \, \forall \, t < -1$
       \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \includegraphics[width=\textwidth, height=0.5cm]{figures/Helium_spectrum_visible}
+      \begin{block}{Liouville equation (rotating frame)}
+        \begin{gather*}
+          \dv{\tilde{\rho}}{t} = -\frac{i}{\hbar} \commutator{\hat{U}\hat{\oper{H}}\hat{U}^\dagger - i\hbar \hat{V}}{\tilde{\rho}} - \hat{\oper{D}}\qty[\tilde{\rho}]; \quad \hat{U} = \mathrm{diag}(1, e^{i \omega_L t}), \quad \hat{V} = \hat{U} \dv{\hat{U}}{t}
+        \end{gather*}
+      \end{block}
+
+      \begin{gather*}
+        \tilde{\mathfrak{F}}\{\tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
+        \qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
+        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
+        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
+        \, \dd[3]{\vb{r'}}
+      \end{gather*}
+\end{frame}
+
+\begin{frame}{Determination of the $\Lambda$s}
+  \begin{block}{Multipole expansion}
+    \begin{equation*}
+      \underbrace{\int_{} \psi_i(\vb{r}) (x - x_0)^{m_x} (y - y_0)^{m_y} (z - z_0)^{m_z}}_{Q_{i\vb{m}}} - \sum_{\vb{u} \in C_i} \Lambda_{i \vb{u}} \underbrace{\delta(\vb{r} - \vb{u}) \dd[3]{\vb{r}}}_{W_{\vb{m}\vb{u}}} = 0
+    \end{equation*}
+  \end{block}
+  \begin{columns}
+    \column{0.7\textwidth}
+      \begin{itemize}
+        \item Grid discretization sufficient to recover $k_0 = \omega_0/c$ spatial variation
+        \item Instantaneous ``propagation'' from source to grid
+        \item Recover $\grad \div \vb{J}$ from $\grad \div Q_{i\vb{m}}$
+      \end{itemize}
+
+    \column{0.3\textwidth}
+      \begin{block}{Least-squares fit}
+        \begin{equation*}
+          \sum_{\vb{u} \in C_i} W_{\vb{m}\vb{u}} \Lambda_{i \vb{u}} = Q_{i\vb{m}}
+        \end{equation*}
+      \end{block}
   \end{columns}
 \end{frame}
 

@@ -1326,6 +1326,7 @@
   \begin{axis}[
       xlabel = {Time (\si{\pico\second})},
       ylabel = {Population ($\rho_{00}$)},
+      enlargelimits = 0.10,
     ]
     \addplot+[no marks, smooth, ultra thin, plot2] table [x index = {0}, y index = {1}]{frames.dat};
     \addlegendentry{Fixed frame};
