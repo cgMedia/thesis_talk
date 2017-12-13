@@ -285,11 +285,9 @@
       \input{figures/time_basis_function}
 
     \column{0.5\textwidth}
-      \begin{block}{}
-        \begin{equation*}
-          \tilde{\vb{P}}(\vb{r}, t) = \sum_{\ell = 0}^{N_s - 1} \sum_{m = 0}^{N_t - 1} \tilde{\mathcal{A}}_\ell^{(m)}\vb{S}_\ell(\vb{r}) T(t - m \, \Delta t)
-        \end{equation*}
-      \end{block}
+      \begin{equation*}
+        \tilde{\vb{P}}(\vb{r}, t) = \sum_{\ell = 0}^{N_s - 1} \sum_{m = 0}^{N_t - 1} \tilde{\mathcal{A}}_\ell^{(m)}\vb{S}_\ell(\vb{r}) T(t - m \, \Delta t)
+      \end{equation*}
       \begin{itemize}
         \item $\vb{S}_\ell(\vb{r}) = \vb{d}_\ell \delta(\vb{r} - \vb{r}_\ell)$
         \item $T(t) \rightarrow$ Lagrange polynomials
@@ -297,6 +295,15 @@
             \item causal, interpolatory, differentiable
           \end{itemize}
       \end{itemize}
+        \vspace{-0.3cm}
+        \begin{align*}
+          T(t) &= \sum_{j = 0}^p \lambda_j(t) \\
+          \lambda_j(t) &=
+          \begin{cases}
+            \frac{(1 - \tau)_j}{j!} \frac{(1 + \tau)_{p + j}}{(p + j)!} \quad & j - 1 \le \tau < j \\
+            0 &\text{otherwise}
+          \end{cases}
+        \end{align*}
   \end{columns}
 \end{frame}
 
@@ -309,24 +316,24 @@
 
   \vspace{-0.5cm}
   \begin{equation*}
-    \mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)}) +
-    \mqty(
+    \underbrace{\mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)})}_\text{Laser} +
+    \underbrace{\mqty(
       \oper{Z}^{(0)} \\
       \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
       \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
       \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
                                 & \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-    ) \cdot
-    \mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)}) =
-    \mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})
+      )}_\text{Interaction weights (precalculated)} \cdot
+    \underbrace{\mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)})}_\text{Sources} =
+    \underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
   \end{equation*}
 
-  \vspace{-0.5cm}
-  \begin{equation*}
-    \oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
-    \oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
-    \oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
-  \end{equation*}
+  %\vspace{-0.5cm}
+  %\begin{equation*}
+    %\oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
+    %\oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
+    %\oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
+  %\end{equation*}
 
   \begin{block}{Predictor/corrector}
     \begin{equation*}
@@ -401,10 +408,10 @@
       \end{block}
 
       \begin{gather*}
-        \tilde{\mathfrak{F}}\{ \tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
-        \qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \textcolor{red}{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
-        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\textcolor{red}{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
-        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \textcolor{red}{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
+        \tilde{\mathfrak{F}}\{\tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
+        \qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
+        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
+        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
         \, \dd[3]{\vb{r'}}
       \end{gather*}
 \end{frame}
@@ -443,13 +450,11 @@
   \begin{center}
     \input{figures/box_to_box}
   \end{center}
-  \visible<2-> {
-    \begin{block}{Source-to-grid, grid-to-grid, grid-to-source}
-      \begin{equation*}
-        \mathcal{Z}^\text{far}_{ij} = \sum_{\textcolor{red}{\vb{v}} \in C_j} \sum_{\textcolor{blue}{\vb{u}} \in C_i} \Lambda_{j\textcolor{red}{\vb{v}}} \, g(\textcolor{red}{\vb{v}}, \textcolor{blue}{\vb{u}}) \, \Lambda_{i\textcolor{blue}{\vb{u}}}
-      \end{equation*}
-    \end{block}
-  }
+  \begin{block}{Source-to-grid, grid-to-grid, grid-to-source}
+    \begin{equation*}
+      \mathcal{Z}^\text{far}_{ij} = \sum_{\textcolor{red}{\vb{v}} \in C_j} \sum_{\textcolor{blue}{\vb{u}} \in C_i} \Lambda_{j\textcolor{red}{\vb{v}}} \, g(\textcolor{red}{\vb{v}}, \textcolor{blue}{\vb{u}}) \, \Lambda_{i\textcolor{blue}{\vb{u}}}
+    \end{equation*}
+  \end{block}
 \end{frame}
 
 \begin{frame}{Determination of the $\Lambda$s}
@@ -497,6 +502,61 @@
   \end{center}
 \end{frame}
 
+\begin{frame}{Exploiting translational invariance}
+  $g_{ij} = g(\vb{r}_i, \vb{r}_j)$ matrix becomes \emph{symmetric} and \emph{Toeplitz}\ldots
+  \begin{columns}
+    \column{0.5\textwidth}
+      \begin{equation*}
+        g = \mqty(a & b & c & d \\ b & a & b & c \\ c & b & a & c \\ d & c & b & a)
+      \end{equation*}
+
+    \column{0.5\textwidth}
+      \begin{center}
+        \includegraphics[width=0.5\textwidth]{figures/toep1d.pdf}
+      \end{center}
+  \end{columns}
+  \hfill \ldots in one dimension
+\end{frame}
+
+\begin{frame}{Exploiting translational invariance}
+  We can augment Toeplitz matrices to make them \emph{circulant}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{equation*}
+      g_a \cdot \vb{x}_a = \qty(
+       \begin{array}{cccc|cccc}
+         a & b & c & d & 0 & d & c & b \\
+         b & a & b & c & d & 0 & d & c \\
+         c & b & a & b & c & d & 0 & d \\
+         d & c & b & a & b & c & d & 0 \\ \hline
+         0 & d & c & b & a & b & c & d \\
+         d & 0 & d & c & b & a & b & c \\
+         c & d & 0 & d & c & b & a & b \\
+         b & c & d & 0 & d & c & b & a \\
+       \end{array}) \cdot \mqty(x_0 \\ x_1 \\ x_2 \\ x_3 \\ 0 \\ 0 \\ 0 \\ 0)
+    \end{equation*}
+
+    \column{0.5\textwidth}
+      \begin{center}
+        \includegraphics[width=0.6\textwidth]{figures/circ1d.pdf}
+      \end{center}
+
+  \end{columns}
+
+  \begin{equation*}
+    g_a \cdot \vb{x}_a = \overbrace{F^\dagger \big(\underbrace{D \vphantom{F \cdot \vb{x}_a}}_\text{FFT} \cdot \; (\underbrace{F \cdot \vb{x}_a)}_\text{FFT}\big)}^\text{IFFT}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}{Exploiting translational invariance (in three dimensions)}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \hfill \includegraphics[width=0.0875\textwidth]{figures/toep3d.pdf}
+    \column{0.5\textwidth}
+      \includegraphics[width=0.7\textwidth]{figures/circ3d.pdf}
+  \end{columns}
+\end{frame}
+
 \begin{frame}{Layered redundancies}
   \begin{center}
     Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2)$
@@ -517,7 +577,7 @@
 
 \begin{frame}{Future work}
   \begin{itemize}
-    \item Additional dynamical systems (nanomagnetics)
+    \item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
     \item Development of isotemporal model (same basis functions for integration, interpolation)
     \item Improved $\Lambda$ weighting ($\delta$-function representation in terms of Legendre polynomials?)
     \item Multi-level FFT-based propagation
@@ -585,5 +645,39 @@
 \end{frame}
 
 \appendix
+
+\begin{frame}{Units}
+  \begin{table}
+    \begin{tabular}{lll}
+      Quantity                 & Symbol            & Value                        \\ \hline \hline
+      Speed of light           & $c$               & \SI{300}{\micro\meter \per \pico\second} \\
+      Transition frequency     & $\omega_0$        & $\SI{1500}{\milli\eV}/\hbar$ \\
+      Transition dipole moment & $\vb{d}$          & \SI{10}{\elementarycharge\bohr} (uniform) \\
+      Relaxation times         & $T_{1}, T_{2}$    & \SIlist{10;20}{\pico\second} \\
+      Laser frequency          & $\omega_L$        & $\SI{1500}{\milli\eV}/\hbar$ \\
+      Laser wavevector         & $\vb{k}_L$        & $\omega_L/c$ ($\vb{k}_L \cdot \vb{d} = 0$) \\
+      Pulse width              & $\sigma/\omega_L$ & \SI{1}{\pico\second} \\ \hline
+      Integrator window        & $W$               & 20 \\
+      Corrector iterations     & N/A               & max 10 (usually 4-6) \\
+      Timestep                 & $\Delta t$        & \SI{0.5e-2}{\pico\second}
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+\begin{frame}{Interpolation influence}
+  \begin{columns}
+    \column{0.45\textwidth}
+      \begin{center}
+        \includegraphics[height=0.85\textheight]{figures/spheres_of_influence}
+      \end{center}
+
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item Interpolate $\rho$, $\vb{P}$ due to $\abs{\vb{r} - \vb{r}'}/c \, \not \in \mathbb{N}$
+        \item Sufficiently high order to recover $\partial_t^2 \vb{P}$, $\partial_t \vb{P}$, $\vb{P}$
+        \item Time-domain solution imposes causality requirement: $T(t) = 0 \, \forall \, t < -1$
+      \end{itemize}
+  \end{columns}
+\end{frame}
 
 \end{document}
