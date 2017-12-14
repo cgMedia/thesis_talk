@@ -113,7 +113,37 @@
   }
 \end{frame}
 
-\begin{frame}{Classical electrodynamics: iteratively solving a matrix equation}
+\begin{frame}{An electric-field wave equation}
+  \vspace{0.7cm}
+  \begin{columns}
+    \column{0.6\textwidth}
+        \begin{equation*}
+          \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
+        \end{equation*}
+        \begin{itemize}
+          \item Incorporates short and long-range effects
+          \item Automatic radiation boundary conditions
+          \item Point-to-point communication; no numerical dispersion
+          \item \alert{Four} derivatives, two spatial and two temporal
+        \end{itemize}
+
+    \column{0.4\textwidth}
+      \centering
+      \includegraphics[width=0.5\textwidth]{figures/dipoles_2.png}
+  \end{columns}
+
+  \begin{equation*}
+    \mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
+        \left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} +
+        \left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
+          \frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
+          \frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
+        )
+      \, \mathrm{d}^3 \mathbf{r'}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}{Classical electrodynamics: procedureally solving a matrix equation}
   \begin{block}{Marching-on-in-Time}
     \begin{equation*}
     \oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
@@ -305,6 +335,7 @@
   \href{https://www.github.com/cglosser/quest}{
     \includegraphics[height=\textheight]{figures/github.png}
   }
+  \url{https://www.github.com/cglosser/quest}
 \end{frame}
 
 \begin{frame}{Hierarchy}
@@ -414,7 +445,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Quantum transitions are spectrally pure}
   \includegraphics[width=\textwidth, height=0.5cm]{figures/Helium_spectrum_visible}
       \begin{block}{Liouville equation (rotating frame)}
         \begin{gather*}
