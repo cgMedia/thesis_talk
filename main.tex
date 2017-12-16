@@ -18,7 +18,7 @@
 
 \usepackage{tikz}
 \usepackage{mathtools}
-\usetikzlibrary{positioning, shapes.geometric, arrows, arrows.meta, spy}
+\usetikzlibrary{positioning, shapes.geometric, arrows, arrows.meta, spy, shadows, mindmap}
 \usepgfplotslibrary{colorbrewer}
 
 \usefonttheme{serif}
@@ -37,21 +37,71 @@
 
 \maketitle
 
-\begin{frame}{Things I've worked on}
-  \begin{itemize}
-    \item Radiation models (particularly quantum optics: QuEST)
+\section{Computational electromagnetics}
+
+\begin{frame}{Why (computational) electromagnetics?}
+  \begin{columns}
+    \column{0.5\textwidth}
       \begin{itemize}
-        \item Rank-deficient fast methods, performance optimization, tree codes, FFTs, GPUs
+        \item Maxwell's equations govern electromagnetic phenomena
+          \begin{itemize}
+            \item Radar, antennas, optics, telecommunications, \ldots
+          \end{itemize}
+        \item Analytic solutions unavailable
+        \item Simulate!
+          \begin{itemize}
+            \item How to represent equations?
+            \item speeed $\leftrightarrow$ precision
+          \end{itemize}
       \end{itemize}
-    \item Hydrocarbon deposition molecular dynamics (REBO)
-    \item Nanostructure inverse problem/structure reconstruction (Tribond)
-    \item Computational physics education
+    \column{0.5\textwidth}
+    \begin{center}
+      \includegraphics[width=0.7\textwidth]{figures/aircraft}
+      \begin{block}{Maxwell's equations}
+        \begin{gather*}
+          \div \vb{E} = 4 \pi k_1 \rho \qquad \curl \vb{E} = -k_3 \pdv{\vb{B}}{t} \\
+          \curl \vb{B} = 4 \pi k_2 \alpha \vb{J} + \frac{k_2 \alpha}{k_1} \pdv{\vb{E}}{t} \qquad \div \vb{B} = 0
+        \end{gather*}
+      \end{block}
+    \end{center}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{CEM tools}
+  \begin{center}
+    \input{figures/de_ie_mindmap}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Surface integral equations}
+  \begin{columns}
+    \column{0.6\textwidth}
+    \begin{block}{Convolutional operators}
+      \begin{equation*}
+        \vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) +
+        \begin{cases}
+          \mathcal{L}\qty{\vb{J}(\vb{r}, t)} &\text{(linear EM)} \\
+          \mathcal{L}\qty{\vb{J}\big(\vb{E}(\vb{r}, t))} &\text{(my work)}
+        \end{cases}
+      \end{equation*}
       \begin{itemize}
-        \item \textbf{I}nternational \textbf{C}ourse in \textbf{C}omputational \textbf{P}hysics
-        \item Course development, teaching assistantships
-        \item Introductory workshops (highschool and college level)
+        \item Dispersion-free
+        \item Discretize $\vb{J}$, $\vb{E}$ in space ($N_s$) and time ($N_t$)
+        \item Iterative solution
+          \begin{itemize}
+            \item $\mathcal{O}(N_t N_s^2)$ (na\"ive)
+            \item $\mathcal{O}(N_t N_s \log N_s)$ (optimal)
+          \end{itemize}
       \end{itemize}
-  \end{itemize}
+    \end{block}
+
+    \column{0.4\textwidth}
+      \begin{center}
+        \input{figures/surface_current}\\ \vspace{0.1cm}
+        \input{figures/dense_communication}
+        \input{figures/tree_communication}
+      \end{center}
+  \end{columns}
 \end{frame}
 
 \section{Making an algorithm}
@@ -76,29 +126,23 @@
 \end{frame}
 
 \begin{frame}{Lightning review of (linear) Green's functions}
-  \only<1-3>{
-    \onslide<1-3>{
-      To solve the following differential equation for $a(x)$ \ldots
-      \begin{equation*}
-        \hat{\mathcal{L}}\qty[a(x)] = b(x)
-      \end{equation*}
-    }
-    \onslide<2-3>{
-      \ldots it's far easier to \emph{first} find the Green's function,
-      \begin{equation*}
-        \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
-      \end{equation*}
-    }
-    \onslide<3>{
-      Then,
-      \begin{align*}
-        \hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
-                                    &= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
-                       \Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
-      \end{align*}
-    }
+  \only<1>{
+    To solve the following differential equation for $a(x)$ \ldots
+    \begin{equation*}
+      \hat{\mathcal{L}}\qty[a(x)] = b(x)
+    \end{equation*}
+    \ldots it's far easier to \emph{first} find the Green's function,
+    \begin{equation*}
+      \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
+    \end{equation*}
+    Then,
+    \begin{align*}
+      \hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
+                                  &= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
+                     \Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
+    \end{align*}
   }
-  \only<4>{
+  \only<2>{
     \begin{block}{Laplace equation}
       \begin{equation*}
         \laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
@@ -113,63 +157,6 @@
   }
 \end{frame}
 
-\begin{frame}{An electric-field wave equation}
-  \vspace{0.7cm}
-  \begin{columns}
-    \column{0.6\textwidth}
-        \begin{equation*}
-          \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
-        \end{equation*}
-        \begin{itemize}
-          \item Incorporates short and long-range effects
-          \item Automatic radiation boundary conditions
-          \item Point-to-point communication; no numerical dispersion
-          \item \alert{Four} derivatives, two spatial and two temporal
-        \end{itemize}
-
-    \column{0.4\textwidth}
-      \centering
-      \includegraphics[width=0.5\textwidth]{figures/dipoles_2.png}
-  \end{columns}
-
-  \begin{equation*}
-    \mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
-        \left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} +
-        \left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
-          \frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
-          \frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
-        )
-      \, \mathrm{d}^3 \mathbf{r'}
-  \end{equation*}
-\end{frame}
-
-\begin{frame}{Classical electrodynamics: procedureally solving a matrix equation}
-  \begin{block}{Marching-on-in-Time}
-    \begin{equation*}
-    \oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
-    \end{equation*}
-  \end{block}
-
-  \vspace{-0.5cm}
-  \begin{equation*}
-    \underbrace{\mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)})}_\text{Laser} +
-    \underbrace{\mqty(
-      \oper{Z}^{(0)} \\
-      \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-                                & \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      )}_\text{Interaction weights (precalculated)} \cdot
-    \underbrace{\mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)})}_\text{Sources} =
-    \underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
-  \end{equation*}
-
-  \begin{equation*}
-    \oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
-    \oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
-    \oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
-  \end{equation*}
-\end{frame}
 
 \subsection{Quantum mechanics}
 
@@ -329,13 +316,38 @@
 
 \section{QuEST}
 
-\begin{frame}
-  \centering
-  \vspace{0.5cm}
-  \href{https://www.github.com/cglosser/quest}{
-    \includegraphics[height=\textheight]{figures/github.png}
-  }
-  \url{https://www.github.com/cglosser/quest}
+\begin{frame}{Features}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \begin{itemize}
+        \item Modern C++
+        \item CMake
+        \item Object-oriented
+          \begin{itemize}
+            \item Integrator, RHS function
+            \item Interactions
+            \item Assistance classes
+          \end{itemize}
+        \item Unit tests
+        \item Additional tools
+          \begin{itemize}
+            \item Data manipulation
+            \item Visualization
+            \item Math
+          \end{itemize}
+        \item Clang-format
+        \item Developed on git
+      \end{itemize}
+
+    \column{0.5\textwidth}
+      \begin{center}
+        \vspace{-0.5cm}
+        \href{https://www.github.com/cglosser/quest}{
+          \includegraphics[width=\textwidth]{figures/github.png}
+        }
+        \url{https://github.com/cglosser/quest}
+      \end{center}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Hierarchy}
@@ -381,35 +393,27 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Features}
+\begin{frame}{Things I've worked on}
   \begin{itemize}
-    \item Modern C++
-    \item CMake
-    \item Object-oriented
+    \item Radiation models (quantum optics: QuEST)
       \begin{itemize}
-        \item Integrator, RHS function
-        \item Interactions
-        \item Assistance classes
+        \item Rank-deficient fast methods, performance optimization, tree codes, FFTs, GPUs
       \end{itemize}
-    \item Unit tests
+    \item Molecular dynamics (hydrocarbon bonding, acoustic potentials)
+    \item Nanostructure inverse problem/structure reconstruction (Tribond)
+    \item Computational physics education
       \begin{itemize}
-        \item Modular enough for unit tests!
+        \item \textbf{I}nternational \textbf{C}ourse in \textbf{C}omputational \textbf{P}hysics
+        \item Course development, teaching assistantships
+        \item Introductory workshops (highschool and college level)
       \end{itemize}
-    \item Additional tools
-      \begin{itemize}
-        \item Data manipulation
-        \item Visualization
-        \item Math
-      \end{itemize}
-    \item Developed on git (branches, tags, etc.)
   \end{itemize}
 \end{frame}
+\appendix
 
 \begin{frame}[standout]
   Questions?
 \end{frame}
-
-\appendix
 
 \begin{frame}{Units}
   \begin{table}
@@ -427,6 +431,64 @@
       Timestep                 & $\Delta t$        & \SI{0.5e-2}{\pico\second}
     \end{tabular}
   \end{table}
+\end{frame}
+
+\begin{frame}{An electric-field wave equation}
+  \vspace{0.7cm}
+  \begin{columns}
+    \column{0.6\textwidth}
+        \begin{equation*}
+          \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
+        \end{equation*}
+        \begin{itemize}
+          \item Incorporates short and long-range effects
+          \item Automatic radiation boundary conditions
+          \item Point-to-point communication; no numerical dispersion
+          \item \alert{Four} derivatives, two spatial and two temporal
+        \end{itemize}
+
+    \column{0.4\textwidth}
+      \centering
+      \includegraphics[width=0.5\textwidth]{figures/dipoles_2.png}
+  \end{columns}
+
+  \begin{equation*}
+    \mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
+        \left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} +
+        \left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
+          \frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
+          \frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
+        )
+      \, \mathrm{d}^3 \mathbf{r'}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}{Classical electrodynamics: procedureally solving a matrix equation}
+  \begin{block}{Marching-on-in-Time}
+    \begin{equation*}
+    \oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
+    \end{equation*}
+  \end{block}
+
+  \vspace{-0.5cm}
+  \begin{equation*}
+    \underbrace{\mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)})}_\text{Laser} +
+    \underbrace{\mqty(
+      \oper{Z}^{(0)} \\
+      \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+      \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+      \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+                                & \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+      )}_\text{Interaction weights (precalculated)} \cdot
+    \underbrace{\mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)})}_\text{Sources} =
+    \underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
+  \end{equation*}
+
+  \begin{equation*}
+    \oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
+    \oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
+    \oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
+  \end{equation*}
 \end{frame}
 
 \begin{frame}{Interpolation influence}

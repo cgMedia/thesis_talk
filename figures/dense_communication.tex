@@ -1,0 +1,20 @@
+\begin{tikzpicture}[scale=0.42]
+  \pgfmathsetmacro{\dtheta}{13.3333};
+
+  \pgfmathsetmacro{\dthetaGrand}{9*\dtheta};
+  \pgfmathsetmacro{\firstpt}{0};
+  \pgfmathsetmacro{\secondpt}{\dthetaGrand};
+  \pgfmathsetmacro{\thirdpt}{2*\dthetaGrand};
+
+  \foreach \angle in {0, \dtheta, ..., 360}{
+    \draw[red!50!black] (\firstpt:3) -- (\angle:3);
+    \draw[green!50!black] (\secondpt:3) -- (\angle:3);
+    \draw[blue!50!black] (\thirdpt:3) -- (\angle:3);
+  }
+
+  \pgfmathsetmacro{\nodeRadius}{0.15};
+  \definecolor{level0}{RGB}{110,0,95}
+  \foreach \angle in {0, \dtheta, ..., 360}{
+    \draw[draw=none, fill=level0] (\angle:3) circle (\nodeRadius);
+  }
+\end{tikzpicture}

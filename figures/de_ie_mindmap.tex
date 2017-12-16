@@ -1,0 +1,41 @@
+%This figure requires both the shadows and mindmap tikzlibraries. Include them in your header!
+\begin{tikzpicture}[mindmap]
+  \begin{scope}[
+    every node/.style={concept, circular drop shadow,execute at begin node=\hskip0pt},
+    root concept/.append style={
+      concept color=black, fill=white, line width=1ex, text=black
+    },
+    text=white,
+    IE/.style={concept color=red,faded/.style={concept color=red!50}},
+    DE/.style={concept color=blue,faded/.style={concept color=blue!50}},
+    measuring complexity/.style={concept color=orange,faded/.style={concept color=orange!50}},
+    solving problems/.style={concept color=green!50!black,faded/.style={concept color=green!50!black!50}},
+    grow cyclic,
+    level 1/.append style={level distance=4.5cm},
+    level 2/.append style={level distance=3cm,sibling angle=45}]
+
+  \node[root concept]{Analysis techniques}
+  child[IE]{ node (IE) {Integral equations}}
+  child[DE]{ node (DE) {Differential equations}};
+    \end{scope}
+  \begin{scope}[every annotation/.style={fill=black!20}] 
+    \node [annotation, xshift=2cm] at (DE.east) {
+      Features: 
+       \begin{itemize}
+       \item Local operators
+       \item Volumetric discretization
+       \item Artifical RBC
+       \end{itemize}
+    };
+  \end{scope}
+  \begin{scope}[every annotation/.style={fill=black!20}] 
+    \node [annotation, xshift=2cm] at (IE.east) {
+      Features: 
+       \begin{itemize}
+       \item Global operators
+       \item Surface discretization
+       \item Automatic RBC
+       \end{itemize}
+    };
+  \end{scope}
+\end{tikzpicture}
