@@ -15,26 +15,32 @@
     level 2/.append style={level distance=3cm,sibling angle=45}]
 
   \node[root concept]{Analysis techniques}
-  child[IE]{ node (IE) {Integral equations}}
-  child[DE]{ node (DE) {Differential equations}};
+  child[IE]{ node (IE) {Integral equation methods}}
+  child[DE]{ node (DE) {Differential equation methods}};
     \end{scope}
-  \begin{scope}[every annotation/.style={fill=black!20}] 
+  \begin{scope}[every annotation/.style={fill=blue!10}]
     \node [annotation, xshift=2cm] at (DE.east) {
-      Features: 
+      Properties:
        \begin{itemize}
-       \item Local operators
-       \item Volumetric discretization
-       \item Artifical RBC
+         \item[$\pm$] Local operators
+         \item[\textcolor{green!70!black}{+}] Straightforward
+         \item[\textcolor{green!70!black}{+}] Material properties
+         \item[\textcolor{red}{-}] Volumetric discretization
+         \item[\textcolor{red}{-}] Artifical RBC
+         \item[\textcolor{red}{-}] Poorly conditioned ($h^{-3}$)
        \end{itemize}
     };
   \end{scope}
-  \begin{scope}[every annotation/.style={fill=black!20}] 
+  \begin{scope}[every annotation/.style={fill=red!10}]
     \node [annotation, xshift=2cm] at (IE.east) {
-      Features: 
+      Properties:
        \begin{itemize}
-       \item Global operators
-       \item Surface discretization
-       \item Automatic RBC
+         \item[$\pm$] Global operators
+         \item[\textcolor{red}{-}] Complex
+         \item[\textcolor{red}{-}] Free space
+         \item[\textcolor{green!70!black}{+}] Surface discretization
+         \item[\textcolor{green!70!black}{+}] Automatic RBC
+         \item[\textcolor{green!70!black}{+}] Well conditioned ($h^{-2}$)
        \end{itemize}
     };
   \end{scope}
