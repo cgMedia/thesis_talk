@@ -144,8 +144,9 @@
 
 \begin{frame}{Nonlinear quantum optics}
   \begin{itemize}
-    \item Liouville equation: $\partial_t \vb{J}(\vb{r}, t) = f\qty\big(\vb{J}(\vb{r}, t), \vb{E}(\vb{r}, t))$
+    \item Liouville equation: $\partial_t \hat{\rho}(\vb{r}, t) = f\qty\big(\hat{\rho}(\vb{r}, t), \vb{E}(\vb{r}, t))$
       \begin{itemize}
+        \item $\hat{\rho}$ characterizes $\vb{J}$ directly
         \item Dynamical absorption, emission
         \item Discretization based on ODE frequency
         \item Introduction of nonlinear sources, $\vb{P} \not = \chi_e \vb{E}$
@@ -158,7 +159,7 @@
       \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
       \tikzstyle{arrow} = [thick,->,>=stealth]
 
-      \node (quantum) [physics, align=center] {Integrate ODE to advance $\vb{J}$ by $\Delta t$; \\ Feed into Maxwell as new source};
+      \node (quantum) [physics, align=center] {Integrate ODE to advance ``$\vb{J}$'' by $\Delta t$; \\ Feed into Maxwell as new source};
       \node (em) [engineering, right= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
 
       \draw [arrow] ($(quantum.east)+(0,0.3)$) -- ($(em.west)+(0,0.3)$);
@@ -169,7 +170,25 @@
 \end{frame}
 
 \begin{frame}{Temporal acceleration}
+  \begin{columns}
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item Liouville equation:
+          \begin{itemize}
+            \item High frequency (optical)
+            \item Narrow band
+          \end{itemize}
+        \item Solutions of the form $\vb{J}(t) = \tilde{\vb{J}}(t) \cos(\omega_L t)$
+        \item Assumed $e^{i \omega_L t}$ phase factor
+        \item Negligible high frequency terms after integration
+        \item Interference recovered in modified $\tilde{\mathcal{L}}\qty{\tilde{\vb{J}}(\vb{r}, t)}$
+        \item $N_t \to N_t/\alpha$ ($\alpha \sim 500$)
+      \end{itemize}
 
+    \column{0.45\textwidth}
+      \vspace{0.5cm}
+      \input{figures/pseudospin_periodogram}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Frame comparison}
@@ -224,7 +243,6 @@
     Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s)$
   \end{center}
 \end{frame}
-
 
 \begin{frame}{Collective dynamics}
   \vspace{0.5cm}
