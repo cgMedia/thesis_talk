@@ -159,7 +159,7 @@
       \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
       \tikzstyle{arrow} = [thick,->,>=stealth]
 
-      \node (quantum) [physics, align=center] {Integrate ODE to advance ``$\vb{J}$'' by $\Delta t$; \\ Feed into Maxwell as new source};
+      \node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
       \node (em) [engineering, right= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
 
       \draw [arrow] ($(quantum.east)+(0,0.3)$) -- ($(em.west)+(0,0.3)$);
@@ -270,11 +270,16 @@
           }]
           \addplot [draw=none] coordinates {(0,0)};
       \end{axis}
-    \end{tikzpicture} \\
-    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_0.png} \\
-    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_1.png} \\
-    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_2.png} \\
-    \includegraphics[width=0.9\textwidth]{figures/tube/tube_print_3.png}
+    \end{tikzpicture} 
+    \begin{tikzpicture}[>=latex]
+      \draw[thick, ->] (-6.5,0) -- (-6.5,-4.5) node[midway, above, rotate=90]{Time};
+      \node (tube0) at (0,-0.0) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_0}};
+      \node (tube1) at (0,-1.5) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_1}};
+      \node (tube2) at (0,-3.0) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_2}};
+      \node (tube3) at (0,-4.5) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_3}};
+      %\draw[->] (6.5,0) -- (6.5,-4.5) node[midway, above, rotate=-90]{Time};
+      \path[->] (7.5,0) -- (7.5,-4.5);
+    \end{tikzpicture} 
   \end{center}
 \end{frame}
 
