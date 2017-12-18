@@ -31,7 +31,7 @@
 \subtitle{The QuEST for light-matter models}
 \date{December 20, 2017}
 \author{Connor Glosser}
-\institute{Michigan State University}
+\institute{Michigan State University, Physics \& Electrical Engineering}
 
 \newcommand{\oper}[1]{\mathcal{#1}}
 \newcommand{\rwoper}[1]{\tilde{\mathcal{#1}}}
@@ -75,18 +75,22 @@
 \end{frame}
 
 \begin{frame}{Problem statement}
-  Given
-  \begin{center}
-    geometry, material data, excitation, incident field
-  \end{center}
-  determine
-  \begin{center}
-    near and far fields, impedances, coupling
-  \end{center}
-  in the
-  \begin{center}
-    time or frequency domain.
-  \end{center}
+  \begin{columns}
+    \column{0.6\textwidth}
+      Given
+      \begin{center}
+        geometry, material data, excitation
+      \end{center}
+      determine
+      \begin{center}
+        near and far fields, impedances, coupling
+      \end{center}
+      in the
+      \begin{center}
+        time or frequency domain.
+      \end{center}
+
+  \end{columns}
 \end{frame}
 
 \begin{frame}{The computational electromagnetics toolbox}
@@ -98,9 +102,9 @@
 \begin{frame}{Integral equations}
   \begin{columns}
     \column{0.6\textwidth}
-    \begin{block}{Convolutional operator}
+    \begin{block}{Convolutional propagation}
       \begin{equation*}
-        \vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \mathcal{L}\qty{\vb{J}(\vb{r}, t)}
+        \vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \overline{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)
       \end{equation*}
       \hfill \tiny{(applies to lots of physical potentials)}
     \end{block}
@@ -111,7 +115,7 @@
       \end{equation*}
       \begin{itemize}
         \item $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
-        \item Cost to evaluate $\mathcal{L}\qty{\vb{J}(\vb{r}, t)} \sim \mathcal{O}(N_t N_s^2)$
+        \item Cost to evaluate $\overline{g}(\vb{r}, t) * \vb{J}(\vb{r}, t) \sim \mathcal{O}(N_t N_s^2)$
       \end{itemize}
     \end{block}
 
@@ -124,11 +128,11 @@
 
 \begin{frame}{More perspective}
   \begin{itemize}
-    \item Electrically large objects: $N_s > 10^6$
-    \item Memory required $\sim \mathcal{O}(N_s^2) \approx \SI{8}{\tera\byte}$
+    \item Electrically large objects: $N_s > 10^8$
+    \item Memory required $\sim \mathcal{O}(N_s^2) \approx \SI{1000}{\tera\byte}$
     \item Time required
       \begin{itemize}
-        \item Potential evaluation: $\mathcal{O}(N_s^2) \to \SI{1}{\hour}$ (at \SI{300}{\mega\flops})
+        \item Potential evaluation: $\mathcal{O}(N_s^2) \to \SI{26}{\hour}$ (at \SI{105}{\giga\flops})
         \item Full solution: $N_t \propto N_s$ so $\mathcal{O}(N_s^3) \to \SI{105}{\year}$
       \end{itemize}
   \end{itemize}
@@ -140,33 +144,36 @@
   \end{block}
 \end{frame}
 
-\section{Fast methods}
+\section{Fast methods for quantum optics}
 
-\begin{frame}{Nonlinear quantum optics}
-  \begin{itemize}
-    \item Liouville equation: $\partial_t \hat{\rho}(\vb{r}, t) = f\qty\big(\hat{\rho}(\vb{r}, t), \vb{E}(\vb{r}, t))$
-      \begin{itemize}
-        \item $\hat{\rho}$ characterizes $\vb{J}$ directly
-        \item Dynamical absorption, emission
-        \item Discretization based on ODE frequency
-        \item Introduction of nonlinear sources, $\vb{P} \not = \chi_e \vb{E}$
-        \item Reconcile with Maxwell's equations; simultaneously solve both
-      \end{itemize}
-  \end{itemize}
-  \begin{center}
-    \begin{tikzpicture}[node distance=0.8cm, >=latex]
-      \tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
-      \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
-      \tikzstyle{arrow} = [thick,->,>=stealth]
+\begin{frame}{Problem statement}
+  \begin{columns}[t]
+    \column{0.5\textwidth}
+       
 
-      \node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
-      \node (em) [engineering, right= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
+    \column{0.5\textwidth}
+  \end{columns}
 
-      \draw [arrow] ($(quantum.east)+(0,0.3)$) -- ($(em.west)+(0,0.3)$);
-      \draw [arrow] ($(em.west)-(0,0.3)$) -- ($(quantum.east)-(0,0.3)$);
+  \begin{columns}[t]
+    \column{0.5\textwidth}
+      \begin{block}{Features}
+        \begin{itemize}
+          \item Narrow band
+          \item Point particles
+          \item Semiclassical model
+        \end{itemize}
+      \end{block}
 
-    \end{tikzpicture}
-  \end{center}
+    \column{0.5\textwidth}
+      \begin{block}{Challenges}
+        \begin{itemize}
+          \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \overline{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
+          \item Retardation
+          \item High frequency: $\Delta t \propto \omega_\text{max}^{-1}$
+        \end{itemize}
+      \end{block}
+
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Temporal acceleration}
@@ -198,12 +205,14 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Spatial acceleration}
+\begin{frame}{Spatial acceleration: Uniform grid}
   \begin{columns}
     \column{0.75\textwidth}
-    \begin{equation*}
-      \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} g\qty(\vb{r}_\text{obs} - \vb{r}_\text{src}) \vb{J}\qty(\vb{r}_\text{src})
-    \end{equation*}
+      \begin{block}{Consider an easier problem}
+        \begin{equation*}
+          \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} g\qty(\vb{r}_\text{obs} - \vb{r}_\text{src}) \vb{J}\qty(\vb{r}_\text{src})
+        \end{equation*}
+      \end{block}
     \begin{itemize}
       \item Translational invariance in $g(\vb{r}_\text{obs}, \vb{r}_\text{src}) = g(\vb{r}_\text{obs} - \vb{r}_\text{src})$
       \item Convolution $\to$ multiplication by Fourier transform
@@ -219,28 +228,59 @@
 
     \column{0.25\textwidth}
     \begin{center}
-      \includegraphics[height=0.4\textheight]{figures/dense_1d}
+      %\includegraphics[height=0.4\textheight]{figures/dense_1d}
 
-      \includegraphics[height=0.4\textheight]{figures/grid_1d}
+      %\includegraphics[height=0.4\textheight]{figures/grid_1d}
     \end{center}
   \end{columns}
+
+\end{frame}
+
+\begin{frame}{Spatial acceleration: Nonuniform grid}
 \end{frame}
 
 \begin{frame}{Layered redundancies}
   \begin{center}
-    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2)$
+    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2) \to$ \alert{(years)}
   \end{center}
   \begin{block}{Rotating-wave approximation}
     High-frequency terms barely affect dynamics; formulate equations without them.
   \end{block}
   \begin{block}{Fewer degrees-of-freedom}
-    $g(\vb{r}, \vb{r}')$ has the same value at large distances; aggregate sources and transmit once.
+    $g(\vb{r}, \vb{r}')$ compressible; aggregate sources and transmit once.
   \end{block}
   \begin{block}{Imposed translational invariance}
     $g(\vb{r}, \vb{r}') = \vb{g}(\abs{\vb{r} - \vb{r}'})$ redundant on grid; employ FFT to accelerate $\int_{}g(\vb{r} - \vb{r}') \vb{J}(\vb{r'}) \dd[3]{\vb{r}'}$.
   \end{block}
   \begin{center}
-    Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s)$
+    Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(hours)}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Nonlinear quantum optics}
+  \begin{itemize}
+    \item Liouville equation: $\partial_t \hat{\rho}(\vb{r}, t) = f\qty\big(\hat{\rho}(\vb{r}, t), \vb{E}(\vb{r}, t))$
+      \begin{itemize}
+        \item $\hat{\rho}$ characterizes $\vb{J}$ directly
+        \item Dynamical absorption, emission
+        \item Discretization based on ODE frequency
+        \item Introduction of nonlinear sources, $\vb{P} \not = \chi_e \vb{E}$
+        \item Reconcile with Maxwell's equations; simultaneously solve both
+      \end{itemize}
+  \end{itemize}
+  \begin{center}
+    \begin{tikzpicture}[node distance=0.8cm, >=latex]
+      \tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
+      \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
+      \tikzstyle{arrow} = [thick,->,>=stealth]
+
+      \node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
+      \node (em) [engineering, right= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
+
+      \draw [arrow] ($(quantum.east)+(0,0.3)$) -- ($(em.west)+(0,0.3)$);
+      \draw [arrow] ($(em.west)-(0,0.3)$) -- ($(quantum.east)-(0,0.3)$);
+
+    \end{tikzpicture}
   \end{center}
 \end{frame}
 
@@ -372,6 +412,16 @@
 
     \end{tikzpicture}
   \end{center}
+\end{frame}
+
+\begin{frame}{Pedigree}
+  \begin{itemize}
+    \item Senior member of EM research group at MSU
+      \begin{itemize}
+        \item Theorists
+        \item Experimentalists
+      \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Things I've worked on}
