@@ -22,7 +22,7 @@
     \node [annotation, xshift=2cm, yshift=0.1cm] at (DE.east) {
       Properties:
        \begin{itemize}
-         \item[$\pm$] Local operators \\ (larger, sparse matrices)
+         \item[$\pm$] Local operators
          \item[\textcolor{green!70!black}{+}] Straightforward
          \item[\textcolor{green!70!black}{+}] Material properties
          \item[\textcolor{red}{-}] ``Volumetric'' discretization
@@ -34,7 +34,7 @@
     \node [annotation, xshift=2cm, yshift=-0.1cm] at (IE.east) {
       Properties:
        \begin{itemize}
-         \item[$\pm$] Global operators \\ (smaller, dense matrices)
+         \item[$\pm$] Global operators
          \item[\textcolor{red}{-}] Complex
          \item[\textcolor{red}{-}] Free space
          \item[\textcolor{green!70!black}{+}] ``Surface'' discretization
@@ -55,6 +55,9 @@
   \draw[->] (11.5, 1.6) to[out=30, in=150] (12.0, 1.6);
   \draw[->] (12.0, 1.6) to[out=30, in=150] (12.5, 1.6);
 
+  \node[] at (11.25, 1.2) {\tiny Larger, sparse matrices};
+  
+
   \draw (10,-1.4) -- (10, -1.8);
   \draw (12.5,-1.4) -- (12.5, -1.8);
 
@@ -62,4 +65,6 @@
   \shade [ball color=red!50] (12.5, -1.6) circle [radius=0.1cm];
 
   \draw[->] (10, -1.6) to[out=30, in=150] (12.5, -1.6);
+
+  \node[] at (11.25, -2.0) {\tiny Smaller, dense matrices};
 \end{tikzpicture}
