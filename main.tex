@@ -43,7 +43,23 @@
 
 \section{Computational electromagnetics}
 
-\begin{frame}{Why (computational) electromagnetics?}
+\begin{frame}{Why electromagnetics?}
+  \begin{columns}
+    \column{0.3\textwidth}
+      \centering
+      \includegraphics[height=0.7\textheight]{figures/cell_phone}
+
+    \column{0.3\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{figures/weather_radar}
+
+    \column{0.3\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{figures/Sigma_invader_RCS}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Why \emph{computational} electromagnetics?}
   \begin{columns}
     \column{0.5\textwidth}
       \begin{itemize}
@@ -90,6 +106,14 @@
         time or frequency domain.
       \end{center}
 
+    \column{0.4\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node at (0,0) {\includegraphics[width=0.5\textwidth]{figures/dielectric}};
+        \node at (2, -2.5) {\includegraphics[width=0.5\textwidth]{figures/Dolphin_triangle_mesh}};
+        \node at (-1, -4.0) {\includegraphics[width=0.5\textwidth]{figures/dipole_antenna}};
+      \end{tikzpicture}
+
   \end{columns}
 \end{frame}
 
@@ -104,7 +128,7 @@
     \column{0.6\textwidth}
     \begin{block}{Convolutional propagation}
       \begin{equation*}
-        \vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \overline{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)
+        \vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)
       \end{equation*}
       \hfill \tiny{(applies to lots of physical potentials)}
     \end{block}
@@ -114,8 +138,8 @@
         \vb{J}(\vb{r}, t) \approx \sum_{t=1}^{N_t} \sum_{s=1}^{N_s} a_{ts} \, f_{ts}(\vb{r}, t)
       \end{equation*}
       \begin{itemize}
-        \item $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
-        \item Cost to evaluate $\overline{g}(\vb{r}, t) * \vb{J}(\vb{r}, t) \sim \mathcal{O}(N_t N_s^2)$
+        \item Number of unknowns: $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
+        \item Cost to evaluate $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t) \sim \mathcal{O}(N_t N_s^2)$
       \end{itemize}
     \end{block}
 
@@ -138,7 +162,7 @@
   \end{itemize}
   \begin{block}{Goal}
     \begin{center}
-      Develop methods that scale as $\mathcal{O}(N_s \log^\alpha N_s)$.
+      Develop methods that scale as $\mathcal{O}(N_t N_s \log^\alpha N_s)$.
     \end{center}
     By exploiting physical and mathematical structure of the problem, we can develop formulations amenible to acceleration with controllable error.
   \end{block}
@@ -190,7 +214,6 @@
           \item Point particles
           \item Semiclassical model
           \item Fully 3D
-          \item Near and far fields
         \end{itemize}
         \vfill
       \end{block}
@@ -198,32 +221,26 @@
     \column{0.5\textwidth}
       \begin{block}{Challenges}
         \begin{itemize}
-          \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \overline{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
+          \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
             \begin{itemize}
-              \item $\vb{J}$ described by ODE
+              \item $\vb{J}$ described by ODE; nonlinear sources
             \end{itemize}
           \item Retardation
           \item High frequency ($\Delta t \propto \omega_\text{max}^{-1}$)
+          \item Near and far fields
         \end{itemize}
       \end{block}
 
   \end{columns}
 \end{frame}
 
-\begin{frame}{Temporal acceleration}
+\begin{frame}{Temporal acceleration: frequency shifting}
   \begin{columns}
     \column{0.55\textwidth}
       \begin{itemize}
-        \item Liouville equation:
-          \begin{itemize}
-            \item High frequency (optical)
-            \item Narrow band
-          \end{itemize}
-        \item Solutions of the form $\vb{J}(t) = \tilde{\vb{J}}(t) \cos(\omega_L t)$
-        \item Assumed $e^{i \omega_L t}$ phase factor
-        \item Negligible high frequency terms after integration
-        \item Interference recovered in modified $\tilde{g}(\vb{r}, t)$
-        \item $N_t \to N_t/\alpha$ ($\alpha \sim 500$)
+        \item System discretized by max frequency ($\Delta t \propto \omega_\text{max}^{-1}$)
+        \item High frequency, narrow band implies $\vb{J}(t) \sim \tilde{\vb{J}}(t)\cos(\omega_0 t)$
+        \item Formulate system for $\tilde{\vb{J}}(t)$ only (assumed $\cos(\omega_0 t)$)
       \end{itemize}
 
     \column{0.45\textwidth}
@@ -232,105 +249,103 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Frame comparison}
-  \vspace{0.5cm}
-  \begin{center}
-    \input{figures/frame_comparison}
-  \end{center}
-\end{frame}
-
 \begin{frame}{Spatial acceleration: uniform grid}
   \begin{columns}
     \column{0.75\textwidth}
       \begin{block}{Consider an easier problem (without dynamics)}
         \begin{equation*}
-          \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \overline{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \vb{J}\qty(\vb{r}_\text{src})
+          \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \mathfrak{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \vb{J}\qty(\vb{r}_\text{src})
         \end{equation*}
       \end{block}
-    \begin{itemize}
-      \item Physics imposes translational invariance: $\overline{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \overline{g}(\vb{r}_\text{obs} - \vb{r}_\text{src})$
-      \item Matrix with \emph{structure} (Toeplitz), efficiently diagonalized by \alert{FFT}
-    \end{itemize}
+      \begin{itemize}
+        \item Physics imposes translational invariance: $\mathfrak{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \mathfrak{g}(\vb{r}_\text{obs} - \vb{r}_\text{src})$
+        \item Matrix with \emph{structure} (Toeplitz), efficiently diagonalized by \alert{FFT}
+      \end{itemize}
+
+      \begin{center}
+        \begin{tikzpicture}[>=latex]
+          \draw (0, 0) -- (10, 0);
+          \foreach \x in {0,2,...,10}
+            \draw (\x, -0.2) -- (\x, 0.2);
+
+          \draw[<->] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
+          \draw[<->] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
+          \draw[<->] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
+          \draw[<->] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
+          \draw[<->] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
+
+          \draw[<->] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
+          \draw[<->] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
+          \draw[<->] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
+          \draw[<->] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
+        \end{tikzpicture}
+      \end{center}
 
     \column{0.25\textwidth}
-    \begin{center}
-      %\includegraphics[height=0.4\textheight]{figures/dense_1d}
-
-      %\includegraphics[height=0.4\textheight]{figures/grid_1d}
-      \vfill
-      \begin{equation*}
-        \vb{E} = \underbrace{\overbrace{\overline{G}}^\text{FFT} \overbrace{\vb{J}}^\text{FFT}}_\text{IFFT}
-      \end{equation*}
-    \end{center}
+      \begin{center}
+        \includegraphics[height=0.4\textheight]{figures/grid_1d}
+        \begin{equation*}
+          \vb{E} = \underbrace{\overbrace{G}^\text{FFT} \overbrace{\vb{J}}^\text{FFT}}_\text{IFFT}
+        \end{equation*}
+      \end{center}
   \end{columns}
-
-  \begin{center}
-    \begin{tikzpicture}[>=latex]
-      \draw (0, 0) -- (10, 0);
-      \foreach \x in {0,2,...,10}
-        \draw (\x, -0.2) -- (\x, 0.2);
-
-      \draw[<->] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
-      \draw[<->] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
-      \draw[<->] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
-      \draw[<->] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
-      \draw[<->] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
-
-      \draw[<->] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
-      \draw[<->] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
-      \draw[<->] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
-      \draw[<->] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
-    \end{tikzpicture}
-  \end{center}
 \end{frame}
 
-\begin{frame}{Spatial acceleration: nonuniform grid}
+\begin{frame}[b]{Spatial acceleration: nonuniform grid}
   \begin{columns}
     \column{0.75\textwidth}
-        \textcolor{red!80!black}{Problem:} Sources do not lie on a uniform grid \\
-        \textcolor{green!80!black}{Solution:} Represent them in terms of equivalent sources
+      \textcolor{red!80!black}{Problem:} Sources do not lie on a uniform grid \\
+      \textcolor{green!80!black}{Solution:} Represent them in terms of equivalent sources
+      \begin{itemize}
+        \item Can compress $\mathfrak{g}(\vb{r} - \vb{r}')$ for large distances; adjacent particles interact directly
+        \item Straightforward extension to time-dependent systems, 3D
+      \end{itemize}
+
+      \begin{center}
+        \begin{tikzpicture}[>=latex]
+          \draw (0, 0) -- (10, 0);
+          \foreach \x in {0,2,...,10}
+            \draw (\x, -0.2) -- (\x, 0.2);
+
+          \draw[<->, opacity=0.3] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
+          \draw[<->, opacity=0.3] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
+          \draw[<->, opacity=0.3] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
+          \draw[<->, opacity=0.3] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
+          \draw[<->, opacity=0.3] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
+
+          \draw[<->, opacity=0.3] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
+          \draw[<->, opacity=0.3] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
+          \draw[<->, opacity=0.3] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
+          \draw[<->, opacity=0.3] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
+
+          \node[fill, circle, red, inner sep=1pt] (p1) at (0.5, 0.3) {};
+          \draw[->, red, very thick] (p1) -- (0, 0);
+          \draw[->, red] (p1) -- (2, 0);
+
+          \node[fill, circle, red, inner sep=1pt] (p2) at (3, -0.3) {};
+          \draw[->, red, thick] (p2) -- (2, 0);
+          \draw[->, red, thick] (p2) -- (4, 0);
+          
+          \node[fill, circle, red, inner sep=1pt] (p3) at (6.5, 0.3) {};
+          \node[fill, circle, red, inner sep=1pt] (p4) at (7.2, -0.3) {};
+          \draw[->, red, very thick] (p3) -- (6, 0);
+          \draw[->, red] (p3) -- (8, 0);
+          \draw[->, red] (p4) -- (6, 0);
+          \draw[->, red, very thick] (p4) -- (8, 0);
+
+          \node[fill, circle, red, inner sep=1pt] (p5) at (10.0, 0.5) {};
+          \draw[->, red, very thick] (p5) -- (10, 0);
+        \end{tikzpicture}
+      \end{center}
+
     \column{0.25\textwidth}
-      \begin{equation*}
-        \vb{E} = \Lambda^T \underbrace{\overbrace{G}^\text{FFT} \overbrace{\Lambda \vb{J}}^\text{FFT}}_\text{IFFT}
-      \end{equation*}
+      \begin{center}
+        \includegraphics[height=0.4\textheight]{figures/dense_1d}
+        \begin{equation*}
+          \vb{E} = \textcolor{red}{\Lambda^T} \underbrace{\overbrace{G}^\text{FFT} \overbrace{\textcolor{red}{\Lambda} \vb{J}}^\text{FFT}}_\text{IFFT}
+        \end{equation*}
+      \end{center}
   \end{columns}
-
-  \begin{center}
-    \begin{tikzpicture}[>=latex]
-      \draw (0, 0) -- (10, 0);
-      \foreach \x in {0,2,...,10}
-        \draw (\x, -0.2) -- (\x, 0.2);
-
-      \node[fill, circle, red, inner sep=1pt] (p1) at (0.5, 0.3) {};
-      \draw[->, red, very thick] (p1) -- (0, 0);
-      \draw[->, red] (p1) -- (2, 0);
-
-      \node[fill, circle, red, inner sep=1pt] (p2) at (3, -0.3) {};
-      \draw[->, red, thick] (p2) -- (2, 0);
-      \draw[->, red, thick] (p2) -- (4, 0);
-      
-      \node[fill, circle, red, inner sep=1pt] (p3) at (6.5, 0.3) {};
-      \node[fill, circle, red, inner sep=1pt] (p4) at (7.2, -0.3) {};
-      \draw[->, red, very thick] (p3) -- (6, 0);
-      \draw[->, red] (p3) -- (8, 0);
-      \draw[->, red] (p4) -- (6, 0);
-      \draw[->, red, very thick] (p4) -- (8, 0);
-
-      \node[fill, circle, red, inner sep=1pt] (p5) at (10.0, 0.5) {};
-      \draw[->, red, very thick] (p5) -- (10, 0);
-
-      \draw[<->, opacity=0.3] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
-      \draw[<->, opacity=0.3] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
-      \draw[<->, opacity=0.3] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
-      \draw[<->, opacity=0.3] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
-      \draw[<->, opacity=0.3] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
-
-      \draw[<->, opacity=0.3] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
-      \draw[<->, opacity=0.3] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
-      \draw[<->, opacity=0.3] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
-      \draw[<->, opacity=0.3] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
-    \end{tikzpicture}
-  \end{center}
 \end{frame}
 
 \begin{frame}{Layered redundancies}
@@ -341,10 +356,10 @@
     High-frequency terms barely affect dynamics; formulate equations without them.
   \end{block}
   \begin{block}{Fewer degrees-of-freedom}
-    $g(\vb{r}, \vb{r}')$ compressible; aggregate sources and transmit once.
+    $g(\vb{r}, \vb{r}'; t, t')$ compressible; aggregate adjacent sources and transmit once.
   \end{block}
   \begin{block}{Imposed translational invariance}
-    $g(\vb{r}, \vb{r}') = \vb{g}(\abs{\vb{r} - \vb{r}'})$ redundant on grid; employ FFT to accelerate $\int_{}g(\vb{r} - \vb{r}') \vb{J}(\vb{r'}) \dd[3]{\vb{r}'}$.
+    $g(\vb{r}, t) * \vb{J}(\vb{r}, t)$ structured on grid; FFT accelerates $\iint_{}g(\vb{r} - \vb{r}', t - t') \vb{J}(\vb{r'}, t') \dd[3]{\vb{r}'} \dd{t'}$.
   \end{block}
   \begin{center}
     Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(hours)}
@@ -353,14 +368,13 @@
 
 \begin{frame}{Nonlinear quantum optics}
   \begin{itemize}
-    \item Liouville equation: $\partial_t \hat{\rho}(\vb{r}, t) = f\qty\big(\hat{\rho}(\vb{r}, t), \vb{E}(\vb{r}, t))$
+    \item Liouville equation (ODE) couples $\vb{E}$ to internal degrees-of-freedom
       \begin{itemize}
-        \item $\hat{\rho}$ characterizes $\vb{J}$ directly
-        \item Dynamical absorption, emission
-        \item Discretization based on ODE frequency
-        \item Introduction of nonlinear sources, $\vb{P} \not = \chi_e \vb{E}$
-        \item Reconcile with Maxwell's equations; simultaneously solve both
+        \item So-called ``density matrix'', $\hat{\rho}$
       \end{itemize}
+    \item Evolution characterizes $\vb{J}$ directly
+    \item Designed to accommodate absorption, relaxation at long times
+    \item Reconcile with Maxwell's equations; simultaneously solve both
   \end{itemize}
   \begin{center}
     \begin{tikzpicture}[node distance=0.8cm, >=latex]
@@ -373,9 +387,14 @@
 
       \draw [arrow] ($(quantum.east)+(0,0.3)$) -- ($(em.west)+(0,0.3)$);
       \draw [arrow] ($(em.west)-(0,0.3)$) -- ($(quantum.east)-(0,0.3)$);
-
     \end{tikzpicture}
   \end{center}
+  \begin{block}{Typical simulation}
+    \begin{itemize}
+      \item 10k particles separated by $\sim \SI{2}{\nano\meter}$ in cylindrical, cubic geometries
+      \item Looking for signatures of \alert{confinement}, \alert{superradiance} in $\hat{\rho}$.
+    \end{itemize}
+  \end{block}
 \end{frame}
 
 \begin{frame}{Collective dynamics}
@@ -421,7 +440,7 @@
   \begin{itemize}
     \item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
     \item Development of isotemporal model (same basis functions for integration, interpolation)
-    \item Improved $\Lambda$ weighting ($\delta$-function representation in terms of Legendre polynomials?)
+    \item Improved grid representations ($\delta$-function representation in terms of Legendre polynomials?)
     \item Multi-level FFT-based propagation
     \item Extremely large systems (MPI and/or GPU)
   \end{itemize}
@@ -512,8 +531,12 @@
   \begin{itemize}
     \item Senior member of EM research group at MSU
       \begin{itemize}
-        \item Theorists
-        \item Experimentalists
+        \item Composed of theorists, computationalists, experimentalists
+      \end{itemize}
+    \item ``Hands-on'' electromagnetics
+      \begin{itemize}
+        \item Design of fast algorithms \emph{and} (real) novel structures
+        \item Tips, techniques, discussions, back-of-the-envelopes, whiteboards, at-length investigations, etc.
       \end{itemize}
   \end{itemize}
 \end{frame}
@@ -524,8 +547,8 @@
       \begin{itemize}
         \item Rank-deficient fast methods, performance optimization, tree codes, FFTs, GPUs
       \end{itemize}
-    \item Molecular dynamics (hydrocarbon bonding, acoustic potentials)
-    \item Nanostructure inverse problem/structure reconstruction (Tribond)
+    \item Molecular dynamics (acoustic trapping, hydrocarbon bonding)
+    \item Nanostructure inverse problem, reconstruction (Tribond)
     \item Computational physics education
       \begin{itemize}
         \item \textbf{I}nternational \textbf{C}ourse in \textbf{C}omputational \textbf{P}hysics
