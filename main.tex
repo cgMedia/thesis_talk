@@ -146,6 +146,7 @@
     \column{0.4\textwidth}
       \begin{center}
         \input{figures/dense_communication}
+        {\small ``Everyone talking to everyone''}
       \end{center}
   \end{columns}
 \end{frame}
@@ -259,8 +260,8 @@
         \end{equation*}
       \end{block}
       \begin{itemize}
-        \item Physics imposes translational invariance: $\mathfrak{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \mathfrak{g}(\vb{r}_\text{obs} - \vb{r}_\text{src})$
-        \item Matrix with \emph{structure} (Toeplitz), efficiently diagonalized by \alert{FFT}
+        \item Physics imposes translational invariance, symmetry: $\mathfrak{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \mathfrak{g}(\abs{\vb{r}_\text{obs} - \vb{r}_\text{src}})$
+        \item Matrix with \emph{structure} (Toeplitz), diagonalized by Fourier transform (done quickly with \alert{FFT})
       \end{itemize}
 
       \begin{center}

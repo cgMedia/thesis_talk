@@ -11,36 +11,34 @@
     measuring complexity/.style={concept color=orange,faded/.style={concept color=orange!50}},
     solving problems/.style={concept color=green!50!black,faded/.style={concept color=green!50!black!50}},
     grow cyclic,
-    level 1/.append style={level distance=4.5cm},
-    level 2/.append style={level distance=3cm,sibling angle=45}]
+    level 1/.append style={level distance=4.5cm, sibling angle=40},
+    level 2/.append style={level distance=3cm,sibling angle=30}]
 
   \node[root concept]{Analysis techniques}
   child[IE]{ node (IE) {Integral equation methods}}
   child[DE]{ node (DE) {Differential equation methods}};
     \end{scope}
   \begin{scope}[every annotation/.style={fill=blue!10}]
-    \node [annotation, xshift=2cm] at (DE.east) {
+    \node [annotation, xshift=2cm, yshift=0.1cm] at (DE.east) {
       Properties:
        \begin{itemize}
-         \item[$\pm$] Local operators
+         \item[$\pm$] Local operators \\ (larger, sparse matrices)
          \item[\textcolor{green!70!black}{+}] Straightforward
          \item[\textcolor{green!70!black}{+}] Material properties
          \item[\textcolor{red}{-}] Volumetric discretization
          \item[\textcolor{red}{-}] Artifical radiation boundary condition
-         \item[\textcolor{red}{-}] Bad conditioning ($h^{-3}$)
        \end{itemize}
     };
   \end{scope}
   \begin{scope}[every annotation/.style={fill=red!10}]
-    \node [annotation, xshift=2cm] at (IE.east) {
+    \node [annotation, xshift=2cm, yshift=-0.1cm] at (IE.east) {
       Properties:
        \begin{itemize}
-         \item[$\pm$] Global operators
+         \item[$\pm$] Global operators \\ (smaller, dense matrices)
          \item[\textcolor{red}{-}] Complex
          \item[\textcolor{red}{-}] Free space
          \item[\textcolor{green!70!black}{+}] Surface discretization
          \item[\textcolor{green!70!black}{+}] Automatic radiation boundary condition
-         \item[\textcolor{green!70!black}{+}] Better conditioning ($h^{-2}$)
        \end{itemize}
     };
   \end{scope}
