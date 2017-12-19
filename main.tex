@@ -174,7 +174,7 @@
   \begin{columns}[t]
     \column{0.5\textwidth}
       \begin{block}{Task}
-        Determine the response of $N$ \emph{dynamical} scatterers in response to a prescribed incident field
+        Determine the response of $N_s$ \emph{dynamical} radiators in response to a prescribed incident field
       \end{block}
     \column{0.5\textwidth}
     \begin{center}
@@ -356,10 +356,10 @@
     High-frequency terms barely affect dynamics; formulate equations without them.
   \end{block}
   \begin{block}{Fewer degrees-of-freedom}
-    $g(\vb{r}, \vb{r}'; t, t')$ compressible; aggregate adjacent sources and transmit once.
+    $\mathfrak{g}(\vb{r}, \vb{r}'; t, t')$ compressible; aggregate adjacent sources and transmit once.
   \end{block}
   \begin{block}{Imposed translational invariance}
-    $g(\vb{r}, t) * \vb{J}(\vb{r}, t)$ structured on grid; FFT accelerates $\iint_{}g(\vb{r} - \vb{r}', t - t') \vb{J}(\vb{r'}, t') \dd[3]{\vb{r}'} \dd{t'}$.
+    $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)$ structured on grid; FFT accelerates $\iint_{}\mathfrak{g}(\vb{r} - \vb{r}', t - t') \vb{J}(\vb{r'}, t') \dd[3]{\vb{r}'} \dd{t'}$.
   \end{block}
   \begin{center}
     Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(hours)}
