@@ -44,23 +44,26 @@
 \section{Computational electromagnetics}
 
 \begin{frame}{Why electromagnetics?}
-  \begin{columns}
-    \column{0.3\textwidth}
-      \centering
-      \includegraphics[height=0.7\textheight]{figures/cell_phone}
+  \only<1>{
+    \begin{columns}
+      \column{0.3\textwidth}
+        \centering
+        \includegraphics[height=0.7\textheight]{figures/cell_phone}
 
-    \column{0.3\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{figures/weather_radar}
+      \column{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/weather_radar}
 
-    \column{0.3\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{figures/Sigma_invader_RCS}
-  \end{columns}
-\end{frame}
-
-\begin{frame}
-  \includegraphics[width=\textwidth]{figures/auto-systems04}
+      \column{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/Sigma_invader_RCS}
+    \end{columns}
+  }
+  \only<2>{
+    \begin{center}
+      \includegraphics[width=0.7\textwidth]{figures/auto-systems04}
+    \end{center}
+  }
 \end{frame}
 
 \begin{frame}{Why \emph{computational} electromagnetics?}
@@ -188,7 +191,8 @@
         \begin{itemize}
           \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
             \begin{itemize}
-              \item $\vb{J}$ described by ODE; nonlinear sources
+              \item $\vb{J}$ described by ODE
+              \item Nonlinear sources
             \end{itemize}
           \item Multiphysics: EM + quantum
           \item Optical frequencies $\implies$ large $N_t$
@@ -253,7 +257,7 @@
     \column{0.75\textwidth}
       \begin{block}{Consider an easier problem (1D, without dynamics)}
         \begin{equation*}
-          \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \mathfrak{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \vb{J}\qty(\vb{r}_\text{src})
+          \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \mathfrak{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \rho\qty(\vb{r}_\text{src})
         \end{equation*}
       \end{block}
       \begin{itemize}
@@ -284,7 +288,7 @@
       \begin{center}
         \includegraphics[height=0.4\textheight]{figures/grid_1d}
         \begin{equation*}
-          \vb{E} = \underbrace{\overbrace{G}^\text{FFT} \overbrace{\vb{J}}^\text{FFT}}_\text{IFFT}
+          \vb{E} = \underbrace{\overbrace{G}^\text{FFT} \overbrace{\rho}^\text{FFT}}_\text{IFFT}
         \end{equation*}
       \end{center}
   \end{columns}
@@ -297,6 +301,7 @@
       \textcolor{green!80!black}{Solution:} Represent them in terms of equivalent sources
       \begin{itemize}
         \item Can compress $\mathfrak{g}(\vb{r} - \vb{r}')$ for large distances; adjacent particles interact directly
+        \item Sparse $\Lambda \to \mathcal{O}(n)$ projection
         \item Naturally extended to time-dependent systems, 3D
       \end{itemize}
 
@@ -341,7 +346,7 @@
       \begin{center}
         \includegraphics[height=0.4\textheight]{figures/dense_1d}
         \begin{equation*}
-          \vb{E} = \textcolor{red}{\Lambda^T} \underbrace{\overbrace{G}^\text{FFT} \overbrace{\textcolor{red}{\Lambda} \vb{J}}^\text{FFT}}_\text{IFFT}
+          \vb{E} = \textcolor{red}{\Lambda^T} \underbrace{\overbrace{G}^\text{FFT} \overbrace{\textcolor{red}{\Lambda} \rho}^\text{FFT}}_\text{IFFT}
         \end{equation*}
       \end{center}
   \end{columns}
@@ -351,8 +356,8 @@
   \begin{center}
     Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2) \to$ \alert{(years)}
   \end{center}
-  \begin{block}{Rotating-wave approximation}
-    High-frequency terms barely affect dynamics; formulate equations without them.
+  \begin{block}{Neglect high frequencies}
+    High-frequency terms barely affect dynamics; downshift to baseband.
   \end{block}
   \begin{block}{Fewer degrees-of-freedom}
     $\mathfrak{g}(\vb{r}, \vb{r}'; t, t')$ compressible; aggregate adjacent sources and transmit once.
@@ -365,50 +370,40 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Nonlinear quantum optics}
-  \begin{itemize}
-    \item Liouville equation (ODE) couples $\vb{E}$ to internal degrees-of-freedom
-      \begin{itemize}
-        \item So-called ``density matrix'', $\hat{\rho}$
-      \end{itemize}
-    \item Evolution characterizes $\vb{J}$ directly
-    \item Designed to accommodate absorption, relaxation at long times
-    \item Reconcile with Maxwell's equations; simultaneously solve both
-  \end{itemize}
-  \begin{center}
-    \begin{tikzpicture}[node distance=0.8cm, >=latex]
-      \tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
-      \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
-      \tikzstyle{arrow} = [thick,->,>=stealth]
-
-      \node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
-      \node (em) [engineering, right= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
-
-      \draw [arrow] ($(quantum.east)+(0,0.3)$) -- ($(em.west)+(0,0.3)$);
-      \draw [arrow] ($(em.west)-(0,0.3)$) -- ($(quantum.east)-(0,0.3)$);
-    \end{tikzpicture}
-  \end{center}
-  \begin{block}{Typical simulation}
-    \begin{itemize}
-      \item 10k particles separated by $\sim \SI{2}{\nano\meter}$ in cylindrical, cubic geometries
-      \item Looking for signatures of \alert{confinement}, \alert{superradiance} in $\hat{\rho}$.
-    \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}{Collective dynamics}
+\begin{frame}{Frame comparison}
   \begin{columns}
     \column{0.4\textwidth}
       \begin{itemize}
         \item Evolution of 10k particles
         \item $\vb{J}$ derived from $\rho$
-        \item Neighborhood induces oscillations
+        \item Comparison of single trajectory before/after downshifting
       \end{itemize}
+
+      \vspace{0.5cm}
+      \begin{tikzpicture}[node distance=0.8cm, >=latex]
+        \tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
+        \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
+        \tikzstyle{arrow} = [thick,->,>=stealth]
+
+        \node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
+        \node (em) [engineering, below= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
+
+        \draw [arrow] ($(quantum.south)+(1.0,0)$) -- ($(em.north)+(1.0,0)$);
+        \draw [arrow] ($(em.north)-(1.0,0)$) -- ($(quantum.south)-(1.0,0)$);
+      \end{tikzpicture}
+
     \column{0.6\textwidth}
       \begin{center}
-        \input{figures/high_density_stats}
+        \input{figures/frame_comparison}
       \end{center}
   \end{columns}
+\end{frame}
+
+
+\begin{frame}{Collective dynamics}
+  \begin{center}
+    \input{figures/density_stats}
+  \end{center}
 \end{frame}
 
 \begin{frame}{``Current'' hotspots (energy confinement)}

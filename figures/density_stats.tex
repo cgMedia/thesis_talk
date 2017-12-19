@@ -528,18 +528,20 @@ time     p1                 p2                 lone
 \usetikzlibrary{spy}
 
 \begin{tikzpicture}[
-    spy using outlines={circle, magnification=12, connect spies}
+    spy using outlines={circle, magnification=12, connect spies},
   ]
   \begin{groupplot}[
       group style={
           group name=my plots,
-          group size=1 by 2,
+          group size=2 by 1,
           xlabels at=edge bottom,
           xticklabels at=edge bottom,
-          vertical sep=2pt,
+          horizontal sep=2pt,
+          ylabels at=edge left,
+          yticklabels at=edge left,
       },
-      width=\columnwidth,
-      height=0.618034\columnwidth,
+      width=0.55\textwidth,
+      height=\textheight,
       xlabel={Time (\si{\pico\second})},
       xmin = 0, xmax = 30,
       ymin = 0, ymax = 1,
@@ -549,27 +551,27 @@ time     p1                 p2                 lone
       legend pos=south east,
       cycle list/Set1-3
   ]
-  \nextgroupplot[ylabel style={align=center}, ylabel={Population\\(pair only)}]
+  \nextgroupplot[ylabel style={align=center}, ylabel={Population}]
     \addplot+[smooth, thick, no marks] table[x = time, y = p1] {pair_density_stats.dat};
-    \addlegendentry{$\rho_{00}^{\qty(1)}$ \& $\rho_{00}^{\qty(2)}$}
+    \addlegendentry{$\rho_{00}^{\qty(1)}$}
 
-    %\addplot+[smooth, thick, dashed, no marks] table[x = time, y = p2] {pair_density_stats.dat};
-    %\addlegendentry{$\rho_{00}^{\qty(2)}(t)$}
+    \addplot+[smooth, thick, no marks] table[x = time, y = p2] {pair_density_stats.dat};
+    \addlegendentry{$\rho_{00}^{\qty(2)}(t)$}
 
     \addplot[smooth, thick, dashed, no marks] table[x = time, y = lone] {pair_density_stats.dat};
     \addlegendentry{$\tilde{\vb{E}}_L$-only}
 
     \node[] at (axis cs: 0,0) {(a)};
 
-  \nextgroupplot[ylabel style={align=center}, ylabel={Population\\(neighborhood)}]
+  \nextgroupplot[]
     \addplot+[smooth, thick, no marks] table[x = time, y = p1] {high_density_stats.dat};
-    \draw[->] (axis cs:3,0.67) -- (axis cs:5.9,0.67) node[at start, anchor=east] (A) {$\rho_{00}^{\qty(1)}(t)$};
+    %\draw[->] (axis cs:3,0.67) -- (axis cs:5.9,0.67) node[at start, anchor=east] (A) {$\rho_{00}^{\qty(1)}(t)$};
     %\addlegendentry{$\rho_{00}^{\qty(1)}(t)$}
 
     \addplot+[smooth, thick, no marks] table[x = time, y = p2] {high_density_stats.dat};
-    \node (Bsrc) at (axis cs:0, 0.4) {$\rho_{00}^{\qty(2)}(t)$};
-    \node (Btgt) at (axis cs:7.3, 0.608) {};
-    \draw[->, to path={-| (\tikztotarget)}] (Bsrc) edge (Btgt);
+    %\node (Bsrc) at (axis cs:0, 0.4) {$\rho_{00}^{\qty(2)}(t)$};
+    %\node (Btgt) at (axis cs:7.3, 0.608) {};
+    %\draw[->, to path={-| (\tikztotarget)}] (Bsrc) edge (Btgt);
     %\addlegendentry{$\rho_{00}^{\qty(2)}(t)$}
 
     \foreach \n in {5, ..., 46}

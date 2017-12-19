@@ -1327,12 +1327,13 @@
       xlabel = {Time (\si{\pico\second})},
       ylabel = {Population ($\rho_{00}$)},
       enlargelimits = 0.10,
+      height=\textheight
     ]
     \addplot+[no marks, smooth, ultra thin, plot2] table [x index = {0}, y index = {1}]{frames.dat};
-    \addlegendentry{Fixed frame};
+    \addlegendentry{Direct};
 
     \addplot+[no marks, smooth, ultra thin, plot1] table [x index = {0}, y index = {2}]{frames.dat};
-    \addlegendentry{Rotating frame};
+    \addlegendentry{Downshifted};
 
     %\addplot+[no marks, smooth, ultra thin, green] table {no_inter.dat};
     %\addlegendentry{No interactions};
@@ -1340,5 +1341,5 @@
     \coordinate (spypoint) at (axis cs:0.69, 0.065);
     \coordinate (magnifyglass) at (axis cs:0.2, 0.5);
   \end{axis}
-  \spy [gray, size=4.0cm] on (spypoint) in node[fill=white] at (magnifyglass);
+  \spy [gray, size=3.0cm] on (spypoint) in node[fill=white] at (magnifyglass);
 \end{tikzpicture}
