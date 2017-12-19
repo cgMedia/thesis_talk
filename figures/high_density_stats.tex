@@ -272,7 +272,8 @@ time     ubound               lbound              p1                 p2         
       minor y tick num={4},
       enlargelimits = 0.10,
       legend pos=south east,
-      cycle list/Set1-3
+      cycle list/Set1-3,
+      height=\textheight
   ]
     \addplot+[smooth, thick, no marks] table[x = time, y = p1] {high_density_stats.dat};
     \draw[->] (axis cs:3,0.67) -- (axis cs:5.9,0.67) node[at start, anchor=east] (A) {$\rho_{00}^{\qty(1)}(t)$};

@@ -19,11 +19,11 @@
 \usepackage{pgfplots}
 \pgfplotsset{width=\textwidth, height=0.494427\textwidth}
 
-
 \usepackage{tikz}
 \usepackage{mathtools}
 \usetikzlibrary{positioning, shapes.geometric, arrows, arrows.meta, spy, shadows, mindmap, calc}
 \usepgfplotslibrary{colorbrewer}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 
 \usefonttheme{serif}
 
@@ -121,13 +121,12 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{The computational electromagnetics toolbox}
+\begin{frame}{The computational electromagneticist's toolbox}
   \begin{center}
     \input{figures/de_ie_mindmap}
+    \vspace{-0.5cm}
+    Can we take advantage of IE discretization while \\ simultaneously reducing overall cost complexity?
   \end{center}
-  \begin{alertblock}{Question}
-    Can we take advantage of sparser discretization while simultaneously reducing overall cost complexity?
-  \end{alertblock}
 \end{frame}
 
 \begin{frame}{Integral equations}
@@ -162,15 +161,15 @@
   \begin{itemize}
     \item Electrically large objects: $N_s > 10^6$
     \item Memory required $\sim \mathcal{O}(N_s^2) \approx \SI{1}{\tera\byte}$
-    \item Time required: $\mathcal{O}(N_s^3) \to \SI{1.26}{\year}$ (at \SI{25}{\giga\flops})
+    \item Time required: $\mathcal{O}(N_s^3) \to \SI{1.26}{\year}$ (at \SI{25}{\giga\flops}, roughly single-core i7)
   \end{itemize}
   \begin{block}{Goal}
     \begin{center}
-      Develop methods that scale as $\mathcal{O}(N_t N_s \log^\alpha N_s)$ (years to minutes).
+      Develop methods that scale as $\mathcal{O}(N_t N_s \log^\alpha N_s)$.
     \end{center}
     \begin{itemize}
       \item Exploit physical and mathematical structure
-      \item Reduced cost
+      \item Reduced cost (years to minutes)
       \item Controllable error
     \end{itemize}
   \end{block}
@@ -184,10 +183,21 @@
       \begin{block}{Task}
         Determine the response of $N_s$ \emph{active} radiators to a prescribed incident field.
       \end{block}
+      \begin{block}{Challenges}
+        \begin{itemize}
+          \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
+            \begin{itemize}
+              \item $\vb{J}$ described by ODE; nonlinear sources
+            \end{itemize}
+          \item Multiphysics: EM + quantum
+          \item Optical frequencies $\implies$ large $N_t$
+          \item Random distribution of particles
+        \end{itemize}
+      \end{block}
     \column{0.5\textwidth}
     \begin{center}
-      \begin{tikzpicture}[>=latex, scale=1.5, rotate=-90]
-        \tikzset{snake it/.style={decorate, decoration=snake}}
+      \begin{tikzpicture}[>=latex, scale=1.5]
+        \tikzset{snake it/.style={decorate, decoration={snake, post length=1.5mm}}}
         \node (b0) at (0,0) {};
         \node (b1) at (0,1) {};
         \node (b2) at (0,2) {};
@@ -195,11 +205,11 @@
         \node (b4) at (1,1) {};
         \node (b5) at (1,2) {};
 
-        \draw[thick,red!80!black, snake it] (b0) -- (b3);
-        \draw[thick,blue!80!black, snake it] (b0) -- (b4);
-        \draw[thick,green!80!black, snake it] (b3) -- (b2);
-        \draw[thick,violet, snake it] (b1) -- (b4);
-        \draw[thick,orange, snake it] (b1) -- (b5);
+        \draw[->,thick,red!80!black, snake it] (b0) -- (b3);
+        \draw[->,thick,blue!80!black, snake it] (b0) -- (b4);
+        \draw[->,thick,green!80!black, snake it] (b3) -- (b2);
+        \draw[->,thick,violet, snake it] (b1) -- (b4);
+        \draw[->,thick,orange, snake it] (b1) -- (b5);
 
         \shade [ball color=white] (b0) circle [radius=0.1cm];
         \shade [ball color=white] (b1) circle [radius=0.1cm];
@@ -208,43 +218,16 @@
         \shade [ball color=white] (b4) circle [radius=0.1cm];
         \shade [ball color=white] (b5) circle [radius=0.1cm];
 
-        \draw[thick, snake it,] (0.5, -1.0) -- (0.5, -0.15);
-        \draw[thick, snake it,] (0.5, 2.15) -- (0.5, 3.0);
+        \draw[->,thick, snake it,] (-0.5, 2.0) -- (0, 1.5);
+        \draw[->,thick, snake it,] (1.0, 0.5) -- (1.5, 0.0);
       \end{tikzpicture}
     \end{center}
-  \end{columns}
-
-  \begin{columns}[t]
-    \column{0.5\textwidth}
-      %\begin{block}{Features}
-        %\begin{itemize}
-          %\item Narrow banded response
-          %\item Point particles
-          %\item Fully 3D
-        %\end{itemize}
-        %\vfill
-      %\end{block}
-      \begin{block}{Challenges}
-        \begin{itemize}
-          \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
-            \begin{itemize}
-              \item $\vb{J}$ described by ODE; nonlinear sources
-            \end{itemize}
-          \item Coupled EM + quantum
-          \item Optical frequencies $\implies$ large $N_t$
-          \item Random distribution of particles
-        \end{itemize}
-      \end{block}
-
-    \column{0.5\textwidth}
-      \begin{block}{Next steps}
-        \begin{itemize}
-          \item Spatial acceleration
-          \item Temporal acceleration?
-        \end{itemize}
-      \end{block}
-
-
+    \begin{block}{Next steps}
+      \begin{itemize}
+        \item Spatial acceleration: \checkmark
+        \item Temporal acceleration: ?
+      \end{itemize}
+    \end{block}
   \end{columns}
 \end{frame}
 
@@ -267,14 +250,14 @@
 \begin{frame}{Spatial acceleration: uniform grid}
   \begin{columns}
     \column{0.75\textwidth}
-      \begin{block}{Consider an easier problem (without dynamics)}
+      \begin{block}{Consider an easier problem (1D, without dynamics)}
         \begin{equation*}
           \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \mathfrak{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \vb{J}\qty(\vb{r}_\text{src})
         \end{equation*}
       \end{block}
       \begin{itemize}
         \item Physics imposes translational invariance, symmetry: $\mathfrak{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \mathfrak{g}(\abs{\vb{r}_\text{obs} - \vb{r}_\text{src}})$
-        \item Matrix with \emph{structure} (Toeplitz), diagonalized by Fourier transform (done quickly with \alert{FFT})
+        \item Matrix with \emph{structure} (Toeplitz), diagonalized by Fourier transform (done quickly with \alert{FFT}, $\mathcal{O}(n \log n)$)
       \end{itemize}
 
       \begin{center}
@@ -313,7 +296,7 @@
       \textcolor{green!80!black}{Solution:} Represent them in terms of equivalent sources
       \begin{itemize}
         \item Can compress $\mathfrak{g}(\vb{r} - \vb{r}')$ for large distances; adjacent particles interact directly
-        \item Straightforward extension to time-dependent systems, 3D
+        \item Naturally extended to time-dependent systems, 3D
       \end{itemize}
 
       \begin{center}
@@ -377,7 +360,7 @@
     $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)$ structured on grid; FFT accelerates $\iint_{}\mathfrak{g}(\vb{r} - \vb{r}', t - t') \vb{J}(\vb{r'}, t') \dd[3]{\vb{r}'} \dd{t'}$.
   \end{block}
   \begin{center}
-    Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(hours)}
+    Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(minutes)}
   \end{center}
 \end{frame}
 
@@ -413,13 +396,22 @@
 \end{frame}
 
 \begin{frame}{Collective dynamics}
-  \vspace{0.5cm}
-  \begin{center}
-    \input{figures/high_density_stats}
-  \end{center}
+  \begin{columns}
+    \column{0.4\textwidth}
+      \begin{itemize}
+        \item Evolution of 10k particles
+        \item $\vb{J}$ derived from $\rho$
+        \item Neighborhood induces oscillations
+      \end{itemize}
+    \column{0.6\textwidth}
+      \begin{center}
+        \input{figures/high_density_stats}
+      \end{center}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{``Current'' hotspots (energy confinement)}
+  \vspace{-0.3cm}
   \begin{center}
     \begin{tikzpicture}
       \begin{axis}[
@@ -432,6 +424,8 @@
           point meta min=0.32,
           point meta max=0.40,
           colorbar style={
+              title style={yshift=-0.80cm, color=white},
+              title=Spatial distribution of $\rho_{00}$,
               width=0.75\textwidth,
               xtick={0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40},
               xticklabels={$\le 0.32$, $0.33$, $0.34$, $0.35$, $0.36$, $0.37$, $0.38$, $0.39$, $0.40 \le$}

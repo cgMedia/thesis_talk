@@ -1,5 +1,5 @@
 %This figure requires both the shadows and mindmap tikzlibraries. Include them in your header!
-\begin{tikzpicture}[mindmap]
+\begin{tikzpicture}[mindmap, >=latex]
   \begin{scope}[
     every node/.style={concept, circular drop shadow,execute at begin node=\hskip0pt},
     root concept/.append style={
@@ -42,4 +42,24 @@
        \end{itemize}
     };
   \end{scope}
+
+  \foreach \x in {10,10.5,...,13}
+    \draw (\x, 1.4) -- (\x, 1.8);
+
+  \shade [ball color=blue!50] (10, 1.6) circle [radius=0.1cm];
+  \shade [ball color=blue!50] (12.5, 1.6) circle [radius=0.1cm];
+
+  \draw[->] (10.0, 1.6) to[out=30, in=150] (10.5, 1.6);
+  \draw[->] (10.5, 1.6) to[out=30, in=150] (11.0, 1.6);
+  \draw[->] (11.0, 1.6) to[out=30, in=150] (11.5, 1.6);
+  \draw[->] (11.5, 1.6) to[out=30, in=150] (12.0, 1.6);
+  \draw[->] (12.0, 1.6) to[out=30, in=150] (12.5, 1.6);
+
+  \draw (10,-1.4) -- (10, -1.8);
+  \draw (12.5,-1.4) -- (12.5, -1.8);
+
+  \shade [ball color=red!50] (10, -1.6) circle [radius=0.1cm];
+  \shade [ball color=red!50] (12.5, -1.6) circle [radius=0.1cm];
+
+  \draw[->] (10, -1.6) to[out=30, in=150] (12.5, -1.6);
 \end{tikzpicture}
