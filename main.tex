@@ -201,31 +201,7 @@
       \end{block}
     \column{0.5\textwidth}
     \begin{center}
-      \begin{tikzpicture}[>=latex, scale=1.5]
-        \tikzset{snake it/.style={decorate, decoration={snake, post length=1.5mm}}}
-        \node (b0) at (0,0) {};
-        \node (b1) at (0,1) {};
-        \node (b2) at (0,2) {};
-        \node (b3) at (1,0) {};
-        \node (b4) at (1,1) {};
-        \node (b5) at (1,2) {};
-
-        \draw[->,thick,red!80!black, snake it] (b0) -- (b3);
-        \draw[->,thick,blue!80!black, snake it] (b0) -- (b4);
-        \draw[->,thick,green!80!black, snake it] (b3) -- (b2);
-        \draw[->,thick,violet, snake it] (b1) -- (b4);
-        \draw[->,thick,orange, snake it] (b1) -- (b5);
-
-        \shade [ball color=white] (b0) circle [radius=0.1cm];
-        \shade [ball color=white] (b1) circle [radius=0.1cm];
-        \shade [ball color=white] (b2) circle [radius=0.1cm];
-        \shade [ball color=white] (b3) circle [radius=0.1cm];
-        \shade [ball color=white] (b4) circle [radius=0.1cm];
-        \shade [ball color=white] (b5) circle [radius=0.1cm];
-
-        \draw[->,thick, snake it,] (-0.5, 2.0) -- (0, 1.5);
-        \draw[->,thick, snake it,] (1.0, 0.5) -- (1.5, 0.0);
-      \end{tikzpicture}
+      \input{figures/active_media}
     \end{center}
     \begin{block}{Next steps}
       \begin{itemize}
