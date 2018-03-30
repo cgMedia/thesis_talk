@@ -1028,14 +1028,18 @@
 \begin{tikzpicture}[]
   \begin{axis}[
     xlabel=Time (\si{\pico\second}),
+    ylabel={Matrix elements},
     legend pos=south east,
     axis lines=left,
-    height=0.6\textwidth,
+    height=0.5\textwidth,
     width=\textwidth,
-    grid=major
+    grid=major,
+    enlarge y limits=0.05,
+    ytick={-1, -0.5, 0, 0.5, 1},
+    yticklabels={0.0, 0.25, 0.5, 0.75, 1}
   ]
-    \addplot [smooth, thick, opacity=0.4] table[x index={0}, y index = {1}]{example_bloch.dat}; \addlegendentry{$s_x$};
-    \addplot [smooth, thick, opacity=0.4] table[x index={0}, y index = {2}]{example_bloch.dat}; \addlegendentry{$s_y$};
-    \addplot [smooth, very thick] table[x index={0}, y index = {3}]{example_bloch.dat}; \addlegendentry{$s_z$};
+    \addplot [smooth, thick, opacity=0.4] table[x index={0}, y index = {1}]{example_bloch.dat}; \addlegendentry{$\Re[\rho_{01}]$};
+    \addplot [smooth, thick, opacity=0.4] table[x index={0}, y index = {2}]{example_bloch.dat}; \addlegendentry{$\Im[\rho_{01}]$};
+    \addplot [smooth, very thick] table[x index={0}, y index = {3}]{example_bloch.dat}; \addlegendentry{$\rho_{11}$};
   \end{axis}
 \end{tikzpicture}
