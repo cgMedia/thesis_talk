@@ -38,92 +38,14 @@
 \newcommand{\rwoper}[1]{\tilde{\mathcal{#1}}}
 \newcommand{\outerprod}[2]{#1 \! \otimes \! #2}
 
+\newcommand{\integralspace}{\kern0.1em}
+\newcommand{\sint}{\int_{} \integralspace}
+\newcommand{\siint}{\iint_{} \integralspace}
+\newcommand{\siiint}{\iiint_{} \integralspace}
+
 \begin{document}
 
 \maketitle
-
-\section{Computational electromagnetics}
-
-\begin{frame}{Why electromagnetics?}
-  \only<1>{
-    \begin{columns}
-      \column{0.3\textwidth}
-        \centering
-        \includegraphics[height=0.7\textheight]{figures/cell_phone}
-
-      \column{0.3\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/weather_radar}
-
-      \column{0.3\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{figures/Sigma_invader_RCS}
-    \end{columns}
-  }
-  \only<2>{
-    \begin{center}
-      \includegraphics[width=0.7\textwidth]{figures/auto-systems04}
-    \end{center}
-  }
-\end{frame}
-
-\begin{frame}{Why \emph{computational} electromagnetics?}
-  \begin{columns}
-    \column{0.5\textwidth}
-      \begin{itemize}
-        \item Maxwell's equations govern electromagnetic phenomena
-          \begin{itemize}
-            \item Radar, antennas, optics, telecommunications, \ldots
-          \end{itemize}
-        \item Analytic solutions unavailable for all but simplest geometries
-        \item Simulate!
-          \begin{itemize}
-            \item How to represent \emph{equations} discretely?
-            \item How to represent \emph{boundary conditions} discretely?
-            \item Algorithmic complexity?
-            \item Precision?
-          \end{itemize}
-      \end{itemize}
-    \column{0.5\textwidth}
-    \begin{center}
-      \includegraphics[width=0.7\textwidth]{figures/aircraft}
-      \vspace{0.3cm}
-      \begin{block}{Maxwell's equations}
-        \begin{gather*}
-          \div \vb{E} = 4 \pi k_1 \rho \qquad \curl \vb{E} = -k_3 \pdv{\vb{B}}{t} \\
-          \curl \vb{B} = 4 \pi k_2 \alpha \vb{J} + \frac{k_2 \alpha}{k_1} \pdv{\vb{E}}{t} \qquad \div \vb{B} = 0
-        \end{gather*}
-      \end{block}
-    \end{center}
-  \end{columns}
-\end{frame}
-
-%\begin{frame}{Problem statement}
-  %\begin{columns}
-    %\column{0.6\textwidth}
-      %Given
-      %\begin{center}
-        %geometry, material data, excitation
-      %\end{center}
-      %determine
-      %\begin{center}
-        %near and far fields, impedances, coupling
-      %\end{center}
-      %in the
-      %\begin{center}
-        %time or frequency domain.
-      %\end{center}
-
-    %\column{0.4\textwidth}
-      %\centering
-      %\begin{tikzpicture}
-        %\node at (0,0) {\includegraphics[width=0.5\textwidth]{figures/dielectric}};
-        %\node at (2, -2.5) {\includegraphics[width=0.5\textwidth]{figures/Dolphin_triangle_mesh}};
-        %\node at (-1, -4.0) {\includegraphics[width=0.5\textwidth]{figures/dipole_antenna}};
-      %\end{tikzpicture}
-
-  %\end{columns}
-%\end{frame}
 
 \begin{frame}{Light-matter interaction}
   \begin{itemize}
@@ -133,9 +55,10 @@
       \end{itemize}
     \item Constitutive relations not fully described within Maxwell's equations
       \begin{itemize}
-        \item Sources described by quantum mechanics
+        \item Sources arise from quantum behavior; $\vb{P} \not = \chi \vb{E}$
       \end{itemize}
   \end{itemize}
+  \input{figures/active_media}
 \end{frame}
 
 \begin{frame}{Model of a quantum dot}
@@ -197,7 +120,7 @@
           \begin{itemize}
             \item Perturbation of $\vb{E}$ field $\to$ coupled evolution
           \end{itemize}
-        \item EM source current proportional to $\partial_t \rho_{01}$.
+        \item EM source polarization proportional to $\rho_{01}$ ($\vb{J} = \vb{d} \, \partial_t \rho_{01}$).
       \end{itemize}
     \end{column}
     \begin{column}{0.25\textwidth}
@@ -247,7 +170,7 @@
   %}
 \end{frame}
 
-\begin{frame}{Integral equations}
+\begin{frame}{Integral equation discretization}
   \begin{columns}
     \column{0.6\textwidth}
     \begin{block}{Convolutional propagation}
@@ -259,7 +182,7 @@
 
     \begin{block}{Discretized unknown quantity}
       \begin{equation*}
-        \vb{J}(\vb{r}, t) \approx \sum_{t=1}^{N_t} \sum_{s=1}^{N_s} a_{ts} \, f_{ts}(\vb{r}, t)
+        \vb{J}(\vb{r}, t) \approx \sum_{\ell=1}^{N_t} \sum_{m=1}^{N_s} a_{\ell m} \, \vb{s}_\ell(\vb{r}) T_m(t)
       \end{equation*}
       \begin{itemize}
         \item Number of unknowns: $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
@@ -275,10 +198,53 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{The ``retardation'' problem}
-  \begin{center}
-    \input{figures/time_circles}
-  \end{center}
+\begin{frame}{$\vb{E}$-field propagator}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Operator form}
+        \begin{equation*}
+          \vb{E}(\vb{r}, t) = \sint \qty(\partial_t^2 - c^2 \grad \grad \boldsymbol{\cdot})\frac{\vb{P}(\vb{r}', t_R)}{\abs{\vb{r} - \vb{r}'}} \dd[3]{\vb{r}'}
+        \end{equation*}
+      \end{block}
+      \begin{block}{Dyadic form}
+        \begin{equation*}
+          \begin{gathered}
+            \vb{E}(\vb{r}, t) = \sint
+              \left(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \frac{\partial_t^2 \vb{P}(\vb{r}', t_R)}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
+              \left(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \qty(
+                \frac{\partial_t   \vb{P}(\vb{r}', t_R)}{c \abs{\vb{r}-\vb{r}'}^2} +
+                \frac{             \vb{P}(\vb{r}', t_R)}{  \abs{\vb{r}-\vb{r}'}^3}
+              ) \dd[3]{\vb{r}'}
+          \end{gathered}
+        \end{equation*}
+      \end{block}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{center}
+        \input{figures/time_basis_function}
+        \input{figures/time_circles}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Predictor/corrector to solve underlying ODE}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \input{figures/pc_flowchart}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{itemize}
+        \item Represent $\rho(t)$ as sum of complex exponentials
+        \item Stable, controlled extrapolation procedure
+        \item Repeated $\vb{E}$ calculations, \emph{remarkably} expensive
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \begin{equation*}
+    \hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = 0}^{W - 1} \qty{\mathcal{P}, \mathcal{C}}_w^\qty(0) \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}, \mathcal{C}}_w^\qty(1) \, \partial_t \hat{\rho}(t_{m - w}) \qquad
+  \end{equation*}
 \end{frame}
 
 \begin{frame}{More perspective}
@@ -287,7 +253,7 @@
     \item Memory required $\sim \mathcal{O}(N_s^2) \approx \SI{1}{\tera\byte}$
     \item Time required: $\mathcal{O}(N_s^3) \to \SI{1.26}{\year}$ (at \SI{25}{\giga\flops}, roughly single-core i7)
   \end{itemize}
-  \begin{block}{Goal}
+  \begin{block}{\textsc{Objective 2.0}}
     \begin{center}
       Develop methods that scale as $\mathcal{O}(N_t N_s \log^\alpha N_s)$.
     \end{center}
@@ -299,40 +265,16 @@
   \end{block}
 \end{frame}
 
-\section{Fast methods for quantum optics}
-
-\begin{frame}{Problem statement}
-  \begin{columns}[t]
-    \column{0.5\textwidth}
-      \begin{block}{Task}
-        Determine the response of $N_s$ \emph{active} radiators to a prescribed incident field.
-      \end{block}
-      \begin{block}{Challenges}
-        \begin{itemize}
-          \item $\vb{E}(\vb{r}, t) = \vb{E}_i(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\alert{\vb{E}(\vb{r}, t)})$
-            \begin{itemize}
-              \item $\vb{J}$ described by ODE
-              \item Nonlinear sources
-            \end{itemize}
-          \item Multiphysics: EM + quantum
-          \item Optical frequencies $\implies$ large $N_t$
-          \item Random distribution of particles
-        \end{itemize}
-      \end{block}
-    \column{0.5\textwidth}
-    \begin{center}
-      \input{figures/active_media}
-    \end{center}
-    \begin{block}{Next steps}
-      \begin{itemize}
-        \item Spatial acceleration: \checkmark
-        \item Temporal acceleration: ?
-      \end{itemize}
-    \end{block}
-  \end{columns}
+\begin{frame}[standout]
+  \begingroup
+    \Huge
+    \begin{equation*}
+      \mathcal{O}(N_t N_s^2)
+    \end{equation*}
+  \endgroup
 \end{frame}
 
-\begin{frame}{Temporal acceleration: frequency shifting}
+\begin{frame}{Temporal acceleration: envelope tracking}
   \begin{columns}
     \column{0.55\textwidth}
       \begin{itemize}
@@ -346,6 +288,17 @@
       \vspace{0.5cm}
       \input{figures/pseudospin_periodogram}
   \end{columns}
+\end{frame}
+
+\begin{frame}[standout]
+  \begingroup
+    \Huge
+    \begin{equation*}
+      \mathcal{O}\qty(\frac{N_t N_s^2}{\alpha})
+    \end{equation*}
+  \endgroup
+  \vfill
+  \hfill ($50 \leqslant \alpha \leqslant 1000$)
 \end{frame}
 
 \begin{frame}{Spatial acceleration: uniform grid}
@@ -399,6 +352,7 @@
         \item Can compress $\mathfrak{g}(\vb{r} - \vb{r}')$ for large distances; adjacent particles interact directly
         \item Sparse $\Lambda \to \mathcal{O}(n)$ projection
         \item Naturally extended to time-dependent systems, 3D
+        \item Use $\tilde{\Lambda}^T$ to recover derivatives (such as $\partial_t^2 - c^2 \grad \grad$)
       \end{itemize}
 
       \begin{center}
@@ -448,6 +402,88 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{Steps}
+  \begin{center}
+    \begin{tikzpicture}[>=latex]
+      %\draw (0, 0) -- (10, 0);
+      \foreach \y in {0, -2, -4, -6}{
+        \draw (0,\y) -- (10, \y);
+        \foreach \x in {0,2,...,10} {
+          \draw ($(\x, \y - 0.2)$) -- ($(\x, \y + 0.2)$);
+        }
+
+        \node[fill, circle, inner sep=1pt] at ($(0.5, \y + 0.3)$) {};
+        \node[fill, circle, inner sep=1pt] at ($(3, \y - 0.3)$) {};
+        \node[fill, circle, inner sep=1pt] at ($(6.5, \y + 0.3)$) {};
+        \node[fill, circle, inner sep=1pt] at ($(7.2, \y - 0.3)$) {};
+        \node[fill, circle, inner sep=1pt] at ($(10, \y + 0.5)$) {};
+      }
+
+      \node[anchor=west] at (10.5, 0) {Project};
+      \node[anchor=west] at (10.5, -2) {Propagate};
+      \node[anchor=west] at (10.5, -4) {Recover};
+      \node[anchor=west] at (10.5, -6) {Correct};
+
+      \draw[->, red, very thick] (0.5, 0.3) -- (0, 0);
+      \draw[->, red] (0.5, 0.3) -- (2, 0);
+
+      \draw[->, red, thick] (3, -0.3) -- (2, 0);
+      \draw[->, red, thick] (3, -0.3) -- (4, 0);
+      
+      \draw[->, red, very thick] (6.5, 0.3) -- (6, 0);
+      \draw[->, red] (6.5, 0.3) -- (8, 0);
+      \draw[->, red] (7.2, -0.3) -- (6, 0);
+      \draw[->, red, very thick] (7.2, -0.3) -- (8, 0);
+
+      \draw[->, red, very thick] (10, 0.5) -- (10, 0);
+
+      %%=================================================================
+
+      \draw (0, -2) -- (10, -2);
+      \foreach \x in {2,4,...,10} {
+        \draw[<->, green!50!black] (0,-2) to[out=15, in=165] node[midway, above] {} (\x,-2);
+      }
+      
+      %%=================================================================
+
+      \draw[<-, blue, very thick] (0.5, -3.7) -- (0, -4);
+      \draw[<-, yellow] (0.5, -3.7) -- (2, -4);
+
+      \draw[<-, magenta, thick] (3, -4.3) -- (2, -4);
+      \draw[<-, red, thick] (3, -4.3) -- (4, -4);
+      
+      \draw[<-, green, very thick] (6.5, -3.7) -- (6, -4);
+      \draw[<-, purple] (6.5, -3.7) -- (8, -4);
+      \draw[<-, blue] (7.2, -4.3) -- (6, -4);
+      \draw[<-, green, very thick] (7.2, -4.3) -- (8, -4);
+
+      \draw[<-, yellow, very thick] (10, -3.5) -- (10, -4);
+
+      %%=================================================================
+
+      \draw[<->, red, very thick] (0.5, -5.7) -- (0, -6);
+      \draw[<->, red] (0,-6) to[out=15, in=165] node[midway, above] {} (2,-6);
+      \draw[<->, red, thick] (3, -6.3) -- (2, -6);
+      \draw[<->, green!50!black, thick] (0.5, -5.7) to[out=-40, in=200] (3, -6.3);
+
+      \draw[<->, red, very thick] (6.5, -5.7) -- (6, -6);
+      \draw[<->, red] (6,-6) to[out=15, in=165] node[midway, above] {} (8,-6);
+      \draw[<->, red, thick] (7.2, -6.3) -- (8, -6);
+      \draw[<->, green!50!black, thick] (6.5, -5.7) to[out=-80, in=170] (7.2, -6.3);
+
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}[standout]
+  \begingroup
+    \Huge
+    \begin{equation*}
+      \mathcal{O}\qty(\frac{N_t N_s \log N_s}{\alpha})
+    \end{equation*}
+  \endgroup
+\end{frame}
+
 \begin{frame}{Layered redundancies}
   \begin{center}
     Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2) \to$ \alert{(years)}
@@ -464,6 +500,10 @@
   \begin{center}
     Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(minutes)}
   \end{center}
+\end{frame}
+
+\begin{frame}{Time measuremnets}
+  \input{figures/potential_timing.tex}
 \end{frame}
 
 \begin{frame}{Frame comparison}
@@ -539,11 +579,22 @@
 
 \begin{frame}{Future work}
   \begin{itemize}
-    \item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
-    \item Development of isotemporal model (same basis functions for integration, interpolation)
-    \item Improved grid representations ($\delta$-function representation in terms of Legendre polynomials?)
-    \item Multi-level FFT-based propagation
-    \item Extremely large systems (MPI and/or GPU)
+    \item[] Code
+      \begin{itemize}
+        \item Ergonomics
+        \item Rigorous performance analysis, tuning
+        \item Cyberinfrastructure: visualization tools
+        \item Python wrapper
+        \item Unit tests
+      \end{itemize}
+
+    \item[] Science
+      \begin{itemize}
+        \item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
+        \item Advanced dissipators ($r^{-1}$ coupling, better captures collective phenomena)
+        \item Improved grid representation (more moments from fewer projections, fields from Chebyshev polynomials)
+        \item Multi-level FFT
+      \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -628,32 +679,18 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Pedigree}
+\begin{frame}{Other things I've worked on}
   \begin{itemize}
-    \item Senior member of EM research group at MSU
+    \item[] Particle motion
       \begin{itemize}
-        \item Composed of theorists, computationalists, experimentalists
+        \item Integral-equation model of acoustophoresis (moving microbubbles)
+        \item Coordination-based hydrocarbon bonding potential
       \end{itemize}
-    \item ``Hands-on'' electromagnetics
-      \begin{itemize}
-        \item Design of fast algorithms \emph{and} (real) novel structures
-        \item Tips, techniques, discussions, back-of-the-envelopes, whiteboards, at-length investigations, etc.
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Things I've worked on}
-  \begin{itemize}
-    \item Radiation models (quantum optics: QuEST)
-      \begin{itemize}
-        \item Rank-deficient fast methods, performance optimization, tree codes, FFTs, GPUs
-      \end{itemize}
-    \item Molecular dynamics (acoustic trapping, hydrocarbon bonding)
-    \item Nanostructure inverse problem, reconstruction (Tribond)
-    \item Computational physics education
+    \item[] Nanostructure inverse problem, reconstruction (Tribond)
+    \item[] Computational physics education
       \begin{itemize}
         \item \textbf{I}nternational \textbf{C}ourse in \textbf{C}omputational \textbf{P}hysics
-        \item Course development, teaching assistantships
+        \item Course development, teaching assistantships (PHY170, CMSE201)
         \item Introductory workshops (highschool and college level)
       \end{itemize}
   \end{itemize}
@@ -770,22 +807,6 @@
     \oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
     \oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
   \end{equation*}
-\end{frame}
-
-\begin{frame}{Interpolation influence}
-  \begin{columns}
-    \column{0.45\textwidth}
-      \begin{center}
-        \includegraphics[height=0.85\textheight]{figures/spheres_of_influence}
-      \end{center}
-
-    \column{0.55\textwidth}
-      \begin{itemize}
-        \item Interpolate $\rho$, $\vb{P}$ due to $\abs{\vb{r} - \vb{r}'}/c \, \not \in \mathbb{N}$
-        \item Sufficiently high order to recover $\partial_t^2 \vb{P}$, $\partial_t \vb{P}$, $\vb{P}$
-        \item Time-domain solution imposes causality requirement: $T(t) = 0 \, \forall \, t < -1$
-      \end{itemize}
-  \end{columns}
 \end{frame}
 
 \begin{frame}{Simulated quantum dot = two-level quantum system}

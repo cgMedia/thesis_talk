@@ -1,0 +1,41 @@
+\begin{filecontents}{timing.dat}
+%0 8    0.0064519379999999999 0.0039628140000000003 0.019672374999999999
+1 64   0.121895622           0.131087333           0.048669641999999999
+2 216  1.408270425           1.8366960649999999    0.14679743200000001
+3 512  8.4466792379999998    7.28836029            0.34461146500000001
+4 1000 34.532888429000003    19.418955105999999    0.68291090799999998
+5 1728 109.351966209         42.191302170999997    1.2644752210000001
+6 2744 283.40361019400001    77.052781995000004    2.2465158199999999
+7 4096 642.58817905399997    138.700926256         3.5119759510000002
+\end{filecontents}
+
+\begin{tikzpicture}
+  \pgfplotsset{
+    % initialize Set1-5:
+    cycle list/Set1-3,
+    % combine it with ’mark list*’:
+    cycle multiindex* list={
+      mark list*\nextlist
+      Set1-3\nextlist
+    }
+  }
+  \begin{loglogaxis}[
+      legend pos=north west,
+      %legend cell align={left}
+      xlabel={Number of spatial basis functions},
+      ylabel={Runtime (\si{\second})}
+    ]
+    \addplot table[only marks, skip first n=0, x index=1, y index=2] {timing.dat};
+    \addplot table[only marks, skip first n=0, x index=1, y index=3] {timing.dat};
+    \addplot table[only marks, skip first n=0, x index=1, y index=4] {timing.dat};
+
+    \addplot+[no marks, domain=50:5000] {0.000021008552222650955*x^2.073089742081849};
+    \addlegendentry{\textsc{direct}}
+
+    \addplot+[no marks, domain=50:5000] {0.0013636212059134228*x^1.384944529568301};
+    \addlegendentry{\textsc{fft + nearfield}}
+
+    \addplot+[no marks, domain=50:5000] {0.00021089649305236502*x^1.1692294897005915};
+    \addlegendentry{\textsc{fft only}}
+  \end{loglogaxis}
+\end{tikzpicture}
