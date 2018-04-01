@@ -1,13 +1,17 @@
 %This figure requires both the shadows and mindmap tikzlibraries. Include them in your header!
 \begin{tikzpicture}[mindmap, >=latex]
+  \definecolor{cbred}{HTML}{e41a1c}
+  \definecolor{cbblue}{HTML}{377eb8}
+  \definecolor{cbgreen}{HTML}{4daf4a}
+
   \begin{scope}[
     every node/.style={concept, circular drop shadow,execute at begin node=\hskip0pt},
     root concept/.append style={
       concept color=black, fill=white, line width=1ex, text=black
     },
     text=white,
-    IE/.style={concept color=red,faded/.style={concept color=red!50}},
-    DE/.style={concept color=blue,faded/.style={concept color=blue!50}},
+    IE/.style={concept color=cbred,faded/.style={concept color=cbred!50}},
+    DE/.style={concept color=cbblue,faded/.style={concept color=cbblue!50}},
     measuring complexity/.style={concept color=orange,faded/.style={concept color=orange!50}},
     solving problems/.style={concept color=green!50!black,faded/.style={concept color=green!50!black!50}},
     grow cyclic,
@@ -18,7 +22,7 @@
   child[IE]{ node (IE) {Integral equation methods}}
   child[DE]{ node (DE) {Differential equation methods}};
     \end{scope}
-  \begin{scope}[every annotation/.style={fill=blue!10}]
+  \begin{scope}[every annotation/.style={fill=cbblue!10}]
     \node [annotation, xshift=2cm, yshift=0.1cm] at (DE.east) {
       Properties:
        \begin{itemize}
@@ -30,7 +34,7 @@
        \end{itemize}
     };
   \end{scope}
-  \begin{scope}[every annotation/.style={fill=red!10}]
+  \begin{scope}[every annotation/.style={fill=cbred!10}]
     \node [annotation, xshift=2cm, yshift=-0.1cm] at (IE.east) {
       Properties:
        \begin{itemize}

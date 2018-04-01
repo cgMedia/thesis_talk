@@ -8,9 +8,9 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{physics}
-\usepackage{ragged2e}
 \usepackage{filecontents}
 \usepackage[normalem]{ulem}
+\usepackage{mathtools}
 \usepackage{xcolor}
 
 \usepackage[binary-units]{siunitx}
@@ -28,11 +28,11 @@
 
 \usefonttheme{serif}
 
-\title{Optically-Active Media}
-\subtitle{The QuEST for light-matter models}
+\title{The QuEST for active media models}
+\subtitle{A self-consistent framework for simulating \\ wave propagation in nonlinear systems}
 \date{April 2, 2018}
-\author{Connor Glosser}
-\institute{Michigan State University, Physics \& Electrical Engineering}
+\author{Connor Glosser, Ph.D Candidate}
+\institute{Michigan State University, Physics \& Electrical Engineering \\ Committee members: Drs.\ C.\ Piermarocchi, B.\ Shanker, P.\ M.\ Duxbury, S.\ Tessmer, J.\ Albrecht, J.\ Luginsland}
 
 \newcommand{\oper}[1]{\mathcal{#1}}
 \newcommand{\rwoper}[1]{\tilde{\mathcal{#1}}}
@@ -43,865 +43,1016 @@
 \newcommand{\siint}{\iint_{} \integralspace}
 \newcommand{\siiint}{\iiint_{} \integralspace}
 
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
 \begin{document}
 
 \maketitle
 
-\begin{frame}{Light-matter interaction}
-  \begin{itemize}
-    \item Motivated by need for new devices/device physics in many fields
+\section{Introduction}
+
+\begin{frame}{Modeling electromagnetic systems}
+  \begin{columns}
+    \column{0.5\textwidth}
       \begin{itemize}
-        \item Applications include random lasing, sensors, single-photon sources, quantum information, etc.
+        \item Maxwell's equations govern electromagnetic phenomena
+          \begin{itemize}
+            \item[] Radar, antennas, optics, telecommunications, \ldots
+          \end{itemize}
+        \item Analytic solutions unavailable for all but simplest geometries
+        \item Simulate!
+          \begin{itemize}
+            \item[] How to represent \emph{equations} and \emph{boundary conditions} discretely?
+            \item[] Algorithmic complexity?
+            \item[] Precision?
+          \end{itemize}
       \end{itemize}
-    \item Constitutive relations not fully described within Maxwell's equations
-      \begin{itemize}
-        \item Sources arise from quantum behavior; $\vb{P} \not = \chi \vb{E}$
-      \end{itemize}
-  \end{itemize}
-  \input{figures/active_media}
+    \column{0.5\textwidth}
+    \begin{center}
+      \includegraphics[width=0.7\textwidth]{figures/aircraft}
+      \vspace{0.3cm}
+      \begin{block}{Maxwell's equations}
+        \begin{gather*}
+          \div \vb{E} = \frac{\rho}{\epsilon_0} \qquad \curl \vb{E} = -\pdv{\vb{B}}{t} \\
+          \curl \vb{B} = \mu_0\qty(\vb{J} + \epsilon_0 \pdv{\vb{E}}{t}) \qquad \div \vb{B} = 0
+        \end{gather*}
+      \end{block}
+    \end{center}
+  \end{columns}
 \end{frame}
 
-\begin{frame}{Model of a quantum dot}
+\begin{frame}{Active media systems}
+  \begin{itemize}
+    \item Motivated by fundamental physics, need for new devices/behaviors in many fields
+      \begin{itemize}
+        \item[] Applications: random lasing, biomedical sensing, quantum information, etc.
+        \item[] Constitutive relations not fully described within Maxwell's equations; $\vb{P} \not = \chi \vb{E}$
+      \end{itemize}
+    \item Broadly, ``dynamical systems linked by radiative interactions''
+    \item Specifically EM-field-mediated interactions between quantum dots
+  \end{itemize}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{center}
+        \input{figures/active_media}
+      \end{center}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{}
+        What challenges arise in simulating (large collections of) active quantum dot systems?
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Difficulties of simulating quantum dots in a semiconductor matrix}
+  \begin{itemize}
+    \item[] Extreme length and time scales
+      \begin{itemize}
+        \item Optical frequencies: $\omega \sim \SI{1.5}{\eV \per \hbar} \approx \SI{0.4}{\peta\hertz}$
+        \item $\Delta r_\text{min} \sim \SI{1}{\nano\meter}$, $c/\omega \sim \SI{1}{\micro\meter}$
+      \end{itemize}
+    \item[] Intrinsically many-body
+    \item[] Geometric randomness
+    \item[] Absorption and emission effects
+    \item[] Multiphysical model
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Simulation strategies}
+  \begin{block}{Full quantum description of EM field}
+    \begin{itemize}
+      \item[\textcolor{ForestGreen}{+}] Captures quantum effects, fluctuations
+      \item[\textcolor{BrickRed}{-}] \emph{Extremely} expensive (exponential scaling), untenable for many-body systems
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Macroscopic Maxwell-Bloch PDEs (continuum model)}
+    \begin{itemize}
+      \item[\textcolor{ForestGreen}{+}] Fast, analytically tractable, extended systems
+      \item[\textcolor{BrickRed}{-}] Spatial averages, no interaction between centers, obscures geometric features
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Microscopic Maxwell-Bloch evolution (discrete dot model)}
+    \begin{itemize}
+      \item[\textcolor{ForestGreen}{+}] Decomposes solution into radiation + evolution, preserves fine details
+      \item[\textcolor{BrickRed}{-}] Numerically intricate, envelope solution(?), polynomial scaling
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Discrete dot model: two steps}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Quantum dynamics}
+        Resolve internal dynamics of each quantum dot 
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Electromagnetics}
+        Couple dynamics through (external) radiation field 
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Independent dot dynamics: the Liouville equation}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{equation*}
+          \pdv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
+        \end{equation*}
+        \begin{itemize}
+          \item Density matrix representation %Mixed-state analogue of the Schr\"odinger equation
+          \item Treat $\hat{\vb{E}}$ classically: $\hat{\vb{E}} = \vb{E}$
+          \item Incorporate decoherence in $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenological)
+          \item Driven through ground, excited states (Rabi oscillations)
+          \item Operators local to the particle
+          \item $\expval{\vb{P}} = \Tr{\hat{\rho} \hat{\vb{d}}}$
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \input{figures/example_evolution}
+      \vspace{-0.6cm}
+      \begin{align*}
+        \hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
+        \hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
+      \end{align*}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Spectral charcater of the evolution}
+  \input{figures/pseudospin_periodogram}
+\end{frame}
+
+\begin{frame}{Downshift to exploit (lack of) bandwidth}
   \begin{columns}
     \begin{column}{0.6\textwidth}
-      \begin{align*}
-        \dv{\hat{\rho}}{t} = \commutator{\hat{\mathcal{H}}}{\hat{\rho}} - \hat{\mathcal{D}}\qty{\hat{\rho}}
-      \end{align*}
-      \begin{gather*}
-        \hat{\mathcal{H}} = \mqty( 0 & \vb{d} \cdot \vb{E} \\ \vb{d} \cdot \vb{E} & \hbar \omega_0) \qquad \hat{\mathcal{D}} = \mqty(\rho_{11}/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
-      \end{gather*}
+      \begin{equation*}
+        \pdv{\tilde{\rho}}{t} = \frac{-i}{\hbar} \commutator*{\underbrace{\hat{U}\hat{\mathcal{H}}\hat{U}^\dagger - i\hbar \hat{V}}_{\tilde{\mathcal{H}}} }{\tilde{\rho}} - \hat{\mathcal{D}}\qty[\tilde{\rho}]
+        \end{equation*}
+        \begin{itemize}
+          \item Resonant transition: $\vb{E}(t) \sim \tilde{\vb{E}}(t)\cos(\omega_L t)$
+          \item Off-diagonal $\tilde{\mathcal{H}} \propto e^{i (\omega_L \pm \omega_L) t}$
+            \begin{itemize}
+              \item[] $e^{2 i \omega_L t}$ terms vanish (approximately) after integrating
+            \end{itemize}
+          \item Remaining terms constant, $\ll \omega_0$
+          \item Only envelope functions, ``assumed'' $e^{i \omega_L t}$
+          \item $\Delta t$ increased by a factor $\sim 1000$
+        \end{itemize}
     \end{column}
     \begin{column}{0.4\textwidth}
-      \begin{figure}
-        \centering
-        \begin{tikzpicture}[>=Triangle, scale=0.9]
-          \draw (0,0) circle (1.5cm);
-          \draw (0,0) ellipse (1.5cm and 0.5cm);
-          \draw [->] (0, 0) -- (0,1.5) node[above] {$\ket{1}$};
-          \draw [->] (0,0) -- (1.5,0) node[right] {};
-          \draw [->] (0,0) -- (-0.5,{-sqrt(2)/3}) node[below] {};
-
-          \draw[densely dotted] (0,0) -- (0.4,0.8) node[right] {$\ket{\psi}$};
-          \node at (0.4, 0.8) {\tiny\textbullet};
-          \node[below] at (0, -1.5) {$\ket{0}$};
-        \end{tikzpicture}
-      \end{figure}
+      \begin{align*}
+        \hat{U} &\equiv \mqty(1 & 0 \\ 0 & e^{i \omega_L t}) \\
+        \hat{V} &\equiv \mqty(0 & 0 \\ 0 & -i \omega_L) \\
+        \tilde{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \textcolor{BrickRed}{\vb{E}(t) e^{-i \omega_L t}} \\ \vb{d}^* \cdot \textcolor{BrickRed}{\vb{E}^*(t) e^{i \omega_L t}} & \hbar (\omega_0 - \omega_L)) \\
+        \hat{\mathcal{D}}[\tilde{\rho}] &\equiv \mqty( (\tilde{\rho}_{00} - 1)/T_1 & \tilde{\rho}_{01}/T_2 \\ \tilde{\rho}_{10}/T_2 & \tilde{\rho}_{11}/T_1)
+      \end{align*}
     \end{column}
   \end{columns}
+\end{frame}
 
+\begin{frame}{Discrete dot model: two steps}
   \begin{columns}
-    \begin{column}{0.25\textwidth}
-      \vspace{-0.cm}
-      \begin{figure}
-        \includegraphics[width=\textwidth]{figures/trajectory.png}
-      \end{figure}
-    \end{column}
-    \begin{column}{0.75\textwidth}
-      \begin{itemize}
-        \item $\hat{\mathcal{H}}$ gives two-level structure, coupling to ambient $\vb{E}$ field
-        \item $\hat{\mathcal{D}}$ phenomenologically accounts for decoherence, spontaneous emission
-      \end{itemize}
-    \end{column}
-  \end{columns}
-\end{frame}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Quantum dynamics}
+        Numerically integrate
+        \begin{equation*}
+          \pdv{\tilde{\rho}}{t} = \commutator{\tilde{\mathcal{H}}\qty\big(\vb{E}(t))}{\tilde{\rho}} - \hat{\mathcal{D}}\qty[\tilde{\rho}]
+        \end{equation*}
 
-\begin{frame}[c, fragile]{Example evolution}
-  \begin{figure}
-    \centering
-    \input{figures/example_evolution.tex}
-  \end{figure}
-\end{frame}
-
-\begin{frame}{Features}
-  \begin{columns}[t]
-    \begin{column}{0.75\textwidth}
-      \begin{itemize}
-        \item $\ket{0} \leftrightarrow \ket{1}$ ($\rho_{11} = 0 \, \leftrightarrow \, \rho_{11} = 1$) transition signifies absorption, \alert{emission}
-          \begin{itemize}
-            \item Perturbation of $\vb{E}$ field $\to$ coupled evolution
-          \end{itemize}
-        \item EM source polarization proportional to $\rho_{01}$ ($\vb{J} = \vb{d} \, \partial_t \rho_{01}$).
-      \end{itemize}
+        Features:
+        \begin{itemize}
+          \item Large timesteps
+          \item Electromagnetic sources, $\tilde{\vb{P}}$, derived from $\tilde{\rho}$
+        \end{itemize}
+      \end{block}
     \end{column}
-    \begin{column}{0.25\textwidth}
-      \begin{gather*}
-        \hat{\mathcal{H}} = \mqty( 0 & \vb{d} \cdot \vb{E} \\ \vb{d} \cdot \vb{E} & \hbar \omega_0)
-      \end{gather*}
+
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Electromagnetics}
+        Couple dynamics through (external) radiation field 
+      \end{block}
     \end{column}
   \end{columns}
-
-  \vfill
-
-  \begin{block}{\textsc{Objective}:}
-    \centering
-    Simulate the coupled evolution of large \\ (wavelength-scale) assemblages of quantum dots.
-  \end{block}
-\end{frame}
-
-\begin{frame}{Challenges}
-  \begin{itemize}
-    \item Disparate length scales
-      \begin{itemize}
-        \item Quantum dot $\sim \SI{10}{\nano\meter}$ (atom sized), wavelength $\sim \SI{800}{\nano\meter}$
-      \end{itemize}
-    \item Geometric randomness: \sout{Continuum model}
-    \item Dense system: \sout{Full quantum treatment}
-    \item Nonlinear: \sout{Frequency domain analysis}
-  \end{itemize}
-
-  \vfill
-
-  \begin{block}{\textsc{Solution}:}
-    \centering
-    Adopt a semiclassical radiation theory between point-like quantum dots
-  \end{block}
 \end{frame}
 
 \begin{frame}{The computational electromagneticist's toolbox}
-  %\visible<1->{
     \vspace{-0.5cm}
       \begin{center}
         \input{figures/de_ie_mindmap}
       \end{center}
     \vspace{-1cm}
-  %}
-  %\visible<2->{
-    Can we take advantage of IE discretization while reducing overall cost complexity?
-  %}
 \end{frame}
 
-\begin{frame}{Integral equation discretization}
-  \begin{columns}
-    \column{0.6\textwidth}
-    \begin{block}{Convolutional propagation}
-      \begin{equation*}
-        \vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)
-      \end{equation*}
-      \hfill \tiny{(applies to lots of physical potentials)}
-    \end{block}
+\begin{frame}{Convolutional propagation}
+  Given a source distribution of $\vb{P}(\vb{r}, t)$, the radiated field everywhere becomes
+  \begin{align*}
+    \vb{E}(\vb{r}, t) & = \sint
+      \left(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \frac{\partial_t^2 \vb{P}(\vb{r}', t_R)}{\abs{\vb{r}-\vb{r}'}} +
+      \left(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \qty(
+        \frac{c \, \partial_t \vb{P}(\vb{r}', t_R)}{\abs{\vb{r}-\vb{r}'}^2} +
+        \frac{c^2 \,          \vb{P}(\vb{r}', t_R)}{\abs{\vb{r}-\vb{r}'}^3}
+      ) \dd[3]{\vb{r}'} \\
+      & = \qty(\partial_{t}^2 - c^2 \grad \grad \boldsymbol{\cdot}) \siint \frac{\delta(t_R - t')}{\abs{\vb{r} - \vb{r}'}} \vb{P}(\vb{r}', t') \dd[3]{\vb{r}'} \dd[1]{t'} \\
+                     & \equiv \mathfrak{F}\qty{\vb{P}(\vb{r}, t)}
+  \end{align*}
 
-    \begin{block}{Discretized unknown quantity}
-      \begin{equation*}
-        \vb{J}(\vb{r}, t) \approx \sum_{\ell=1}^{N_t} \sum_{m=1}^{N_s} a_{\ell m} \, \vb{s}_\ell(\vb{r}) T_m(t)
-      \end{equation*}
-      \begin{itemize}
-        \item Number of unknowns: $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
-        \item Cost to evaluate $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t) \sim \mathcal{O}(N_t N_s^2)$
-      \end{itemize}
-    \end{block}
+  Equivalently, for an assumed oscillation, $\vb{E}(\vb{r}, t) = \tilde{\vb{E}}(\vb{r}, t)e^{i \omega_L t}$ and $\vb{P}(\vb{r}, t) = \tilde{\vb{P}}(\vb{r}, t) \textcolor{RoyalBlue}{e^{i \omega_L t}}$,
+  \begin{gather*}
+    \tilde{\mathfrak{F}}\{ \tilde{\vb{P}}(\vb{r}, t) \} \equiv \sint
+    \qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}}) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \textcolor{BrickRed}{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}} + \\
+    \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}}) \cdot \qty(
+      \frac{c \,  \qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R)) \textcolor{BrickRed}{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^2} +
+      \frac{c^2 \,                \tilde{\vb{P}}(\vb{r}', t_R) \textcolor{BrickRed}{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
+    ) \dd[3]{\vb{r'}}
+  \end{gather*}
 
-    \column{0.4\textwidth}
-      \begin{center}
-        \input{figures/dense_communication}
-        {\small ``Everyone talking to everyone''}
-      \end{center}
-  \end{columns}
 \end{frame}
 
-\begin{frame}{$\vb{E}$-field propagator}
+\begin{frame}{Source discretization}
   \begin{columns}
     \begin{column}{0.5\textwidth}
-      \begin{block}{Operator form}
-        \begin{equation*}
-          \vb{E}(\vb{r}, t) = \sint \qty(\partial_t^2 - c^2 \grad \grad \boldsymbol{\cdot})\frac{\vb{P}(\vb{r}', t_R)}{\abs{\vb{r} - \vb{r}'}} \dd[3]{\vb{r}'}
-        \end{equation*}
+      \begin{equation*}
+        \tilde{\vb{P}}(\vb{r}, t) \approx \sum_{\ell, m} \tilde{\mathcal{A}}_{\ell}^\qty(m) \vb{s}_\ell(\vb{r}) T(t - m \, \Delta t)
+      \end{equation*}
+      \vspace{-10pt}
+      \begin{block}{Temporal basis functions, $T(t)$}
+        \begin{enumerate}
+          \item Interpolatory due to nonintegral $t_R$
+          \item 2$\text{nd}$-order differentiable
+          \item Causal structure
+        \end{enumerate}
       \end{block}
-      \begin{block}{Dyadic form}
-        \begin{equation*}
-          \begin{gathered}
-            \vb{E}(\vb{r}, t) = \sint
-              \left(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \frac{\partial_t^2 \vb{P}(\vb{r}', t_R)}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
-              \left(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \qty(
-                \frac{\partial_t   \vb{P}(\vb{r}', t_R)}{c \abs{\vb{r}-\vb{r}'}^2} +
-                \frac{             \vb{P}(\vb{r}', t_R)}{  \abs{\vb{r}-\vb{r}'}^3}
-              ) \dd[3]{\vb{r}'}
-          \end{gathered}
-        \end{equation*}
+
+      \begin{block}{Spatial basis functions, $\vb{s}(\vb{r})$}
+          Determined by problem \\
+          \hfill{\small (quantum dots: $\delta$-functions)}
       \end{block}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \begin{center}
-        \input{figures/time_basis_function}
-        \input{figures/time_circles}
-      \end{center}
+      {}\\[0.2cm]
+      \input{figures/lagrange_interpolation}\\[0.5cm]
+      \input{figures/time_basis_function}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Predictor/corrector to solve underlying ODE}
-  \vspace{0.5cm}
-  \begin{columns}
-    \begin{column}{0.55\textwidth}
-      \input{figures/pc_flowchart}
-    \end{column}
-    \begin{column}{0.45\textwidth}
-      \begin{itemize}
-        \item Represent $\rho(t)$ as sum of complex exponentials
-        \item Stable, controlled extrapolation procedure
-        \item Repeated $\vb{E}$ calculations, \emph{remarkably} expensive
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}{Marching-on-in-Time}
+  Define $\mathcal{Z}^\qty(m)_{\ell \ell'} = \langle \vb{s}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{s}_{\ell '}(\vb{r}) T(m \, \Delta t)} \rangle$
+
   \begin{equation*}
-    \hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = 0}^{W - 1} \qty{\mathcal{P}, \mathcal{C}}_w^\qty(0) \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}, \mathcal{C}}_w^\qty(1) \, \partial_t \hat{\rho}(t_{m - w}) \qquad
+    \mqty(
+      \mathcal{Z}^{(0)} \\
+      \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)} \\
+      \mathcal{Z}^{(2)} & \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)} \\
+      & \mathcal{Z}^{(2)} & \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)} \\
+      & & \mathcal{Z}^{(2)} & \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)}
+  ) \cdot
+  \mqty(\mathcal{A}^{(0)} \\ \mathcal{A}^{(1)} \\ \mathcal{A}^{(2)} \\ \mathcal{A}^{(3)} \\ \mathcal{A}^{(4)}) \rightarrow
+    \mqty(\mathcal{F}^{(0)} \\ \mathcal{F}^{(1)} \\ \mathcal{F}^{(2)} \\ \mathcal{F}^{(3)} \\ \mathcal{F}^{(4)})
   \end{equation*}
+
 \end{frame}
 
-\begin{frame}{More perspective}
-  \begin{itemize}
-    \item Electrically large objects: $N_s > 10^6$
-    \item Memory required $\sim \mathcal{O}(N_s^2) \approx \SI{1}{\tera\byte}$
-    \item Time required: $\mathcal{O}(N_s^3) \to \SI{1.26}{\year}$ (at \SI{25}{\giga\flops}, roughly single-core i7)
-  \end{itemize}
-  \begin{block}{\textsc{Objective 2.0}}
-    \begin{center}
-      Develop methods that scale as $\mathcal{O}(N_t N_s \log^\alpha N_s)$.
-    \end{center}
-    \begin{itemize}
-      \item Exploit physical and mathematical structure
-      \item Reduce cost (years to minutes)
-      \item Control error (machine precision)
-    \end{itemize}
-  \end{block}
-\end{frame}
 
-\begin{frame}[standout]
-  \begingroup
-    \Huge
-    \begin{equation*}
-      \mathcal{O}(N_t N_s^2)
-    \end{equation*}
-  \endgroup
-\end{frame}
+%\begin{frame}{Integral equation discretization}
+  %\begin{columns}
+    %\column{0.6\textwidth}
+    %\begin{block}{Convolutional propagation}
+      %\begin{equation*}
+        %\vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)
+      %\end{equation*}
+      %\hfill \tiny{(applies to lots of physical potentials)}
+    %\end{block}
 
-\begin{frame}{Temporal acceleration: envelope tracking}
-  \begin{columns}
-    \column{0.55\textwidth}
-      \begin{itemize}
-        \item System discretized by max frequency ($\Delta t \propto \omega_\text{max}^{-1}$)
-        \item High frequency, narrow band implies $\vb{J}(t) \sim \tilde{\vb{J}}(t)\cos(\omega_0 t)$
-        \item Formulate system for $\tilde{\vb{J}}(t)$ only (assumed $\cos(\omega_0 t)$)
-        \item Interference recovered with a modified $\tilde{\mathfrak{g}}$
-      \end{itemize}
+    %\begin{block}{Discretized unknown quantity}
+      %\begin{equation*}
+        %\vb{J}(\vb{r}, t) \approx \sum_{\ell=1}^{N_t} \sum_{m=1}^{N_s} a_{\ell m} \, \vb{s}_\ell(\vb{r}) T_m(t)
+      %\end{equation*}
+      %\begin{itemize}
+        %\item Number of unknowns: $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
+        %\item Cost to evaluate $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t) \sim \mathcal{O}(N_t N_s^2)$
+      %\end{itemize}
+    %\end{block}
 
-    \column{0.45\textwidth}
-      \vspace{0.5cm}
-      \input{figures/pseudospin_periodogram}
-  \end{columns}
-\end{frame}
+    %\column{0.4\textwidth}
+      %\begin{center}
+        %\input{figures/dense_communication}
+        %{\small ``Everyone talking to everyone''}
+      %\end{center}
+  %\end{columns}
+%\end{frame}
 
-\begin{frame}[standout]
-  \begingroup
-    \Huge
-    \begin{equation*}
-      \mathcal{O}\qty(\frac{N_t N_s^2}{\alpha})
-    \end{equation*}
-  \endgroup
-  \vfill
-  \hfill ($50 \leqslant \alpha \leqslant 1000$)
-\end{frame}
+%\begin{frame}{$\vb{E}$-field propagator}
+  %\begin{columns}
+    %\begin{column}{0.5\textwidth}
+      %\begin{block}{Operator form}
+        %\begin{equation*}
+          %\vb{E}(\vb{r}, t) = \sint \qty(\partial_t^2 - c^2 \grad \grad \boldsymbol{\cdot})\frac{\vb{P}(\vb{r}', t_R)}{\abs{\vb{r} - \vb{r}'}} \dd[3]{\vb{r}'}
+        %\end{equation*}
+      %\end{block}
+      %\begin{block}{Dyadic form}
+        %\begin{equation*}
+          %\begin{gathered}
+            %\vb{E}(\vb{r}, t) = \sint
+              %\left(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \frac{\partial_t^2 \vb{P}(\vb{r}', t_R)}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
+              %\left(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \qty(
+                %\frac{\partial_t   \vb{P}(\vb{r}', t_R)}{c \abs{\vb{r}-\vb{r}'}^2} +
+                %\frac{             \vb{P}(\vb{r}', t_R)}{  \abs{\vb{r}-\vb{r}'}^3}
+              %) \dd[3]{\vb{r}'}
+          %\end{gathered}
+        %\end{equation*}
+      %\end{block}
+    %\end{column}
+    %\begin{column}{0.5\textwidth}
+      %\begin{center}
+        %\input{figures/time_basis_function}
+        %\input{figures/time_circles}
+      %\end{center}
+    %\end{column}
+  %\end{columns}
+%\end{frame}
 
-\begin{frame}{Spatial acceleration: uniform grid}
-  \begin{columns}
-    \column{0.75\textwidth}
-      \begin{block}{Consider an easier problem (1D, without dynamics)}
-        \begin{equation*}
-          \vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \mathfrak{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \rho\qty(\vb{r}_\text{src})
-        \end{equation*}
-      \end{block}
-      \begin{itemize}
-        \item Physics imposes translational invariance, symmetry: $\mathfrak{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \mathfrak{g}(\abs{\vb{r}_\text{obs} - \vb{r}_\text{src}})$
-        \item Matrix with \emph{structure} (Toeplitz), diagonalized by Fourier transform (done quickly with \alert{FFT}, $\mathcal{O}(n \log n)$)
-      \end{itemize}
+%\begin{frame}{Predictor/corrector to solve underlying ODE}
+  %\vspace{0.5cm}
+  %\begin{columns}
+    %\begin{column}{0.55\textwidth}
+      %\input{figures/pc_flowchart}
+    %\end{column}
+    %\begin{column}{0.45\textwidth}
+      %\begin{itemize}
+        %\item Represent $\rho(t)$ as sum of complex exponentials
+        %\item Stable, controlled extrapolation procedure
+        %\item Repeated $\vb{E}$ calculations, \emph{remarkably} expensive
+      %\end{itemize}
+    %\end{column}
+  %\end{columns}
+  %\begin{equation*}
+    %\hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = 0}^{W - 1} \qty{\mathcal{P}, \mathcal{C}}_w^\qty(0) \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}, \mathcal{C}}_w^\qty(1) \, \partial_t \hat{\rho}(t_{m - w}) \qquad
+  %\end{equation*}
+%\end{frame}
 
-      \begin{center}
-        \begin{tikzpicture}[>=latex]
-          \draw (0, 0) -- (10, 0);
-          \foreach \x in {0,2,...,10}
-            \draw (\x, -0.2) -- (\x, 0.2);
+%\begin{frame}{More perspective}
+  %\begin{itemize}
+    %\item Electrically large objects: $N_s > 10^6$
+    %\item Memory required $\sim \mathcal{O}(N_s^2) \approx \SI{1}{\tera\byte}$
+    %\item Time required: $\mathcal{O}(N_s^3) \to \SI{1.26}{\year}$ (at \SI{25}{\giga\flops}, roughly single-core i7)
+  %\end{itemize}
+  %\begin{block}{\textsc{Objective 2.0}}
+    %\begin{center}
+      %Develop methods that scale as $\mathcal{O}(N_t N_s \log^\alpha N_s)$.
+    %\end{center}
+    %\begin{itemize}
+      %\item Exploit physical and mathematical structure
+      %\item Reduce cost (years to minutes)
+      %\item Control error (machine precision)
+    %\end{itemize}
+  %\end{block}
+%\end{frame}
 
-          \draw[<->] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
-          \draw[<->] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
-          \draw[<->] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
-          \draw[<->] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
-          \draw[<->] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
+%\begin{frame}[standout]
+  %\begingroup
+    %\Huge
+    %\begin{equation*}
+      %\mathcal{O}(N_t N_s^2)
+    %\end{equation*}
+  %\endgroup
+%\end{frame}
 
-          \draw[<->] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
-          \draw[<->] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
-          \draw[<->] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
-          \draw[<->] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
-        \end{tikzpicture}
-      \end{center}
+%\begin{frame}{Temporal acceleration: envelope tracking}
+  %\begin{columns}
+    %\column{0.55\textwidth}
+      %\begin{itemize}
+        %\item System discretized by max frequency ($\Delta t \propto \omega_\text{max}^{-1}$)
+        %\item High frequency, narrow band implies $\vb{J}(t) \sim \tilde{\vb{J}}(t)\cos(\omega_0 t)$
+        %\item Formulate system for $\tilde{\vb{J}}(t)$ only (assumed $\cos(\omega_0 t)$)
+        %\item Interference recovered with a modified $\tilde{\mathfrak{g}}$
+      %\end{itemize}
 
-    \column{0.25\textwidth}
-      \begin{center}
-        \includegraphics[height=0.4\textheight]{figures/grid_1d}
-        \begin{equation*}
-          \vb{E} = \underbrace{\overbrace{G}^\text{FFT} \overbrace{\rho}^\text{FFT}}_\text{IFFT}
-        \end{equation*}
-      \end{center}
-  \end{columns}
-\end{frame}
+    %\column{0.45\textwidth}
+      %\vspace{0.5cm}
+      %\input{figures/pseudospin_periodogram}
+  %\end{columns}
+%\end{frame}
 
-\begin{frame}[b]{Spatial acceleration: nonuniform grid}
-  \begin{columns}
-    \column{0.75\textwidth}
-      \textcolor{red!80!black}{Problem:} Sources do not lie on a uniform grid \\
-      \textcolor{green!80!black}{Solution:} Represent them in terms of equivalent sources
-      \begin{itemize}
-        \item Can compress $\mathfrak{g}(\vb{r} - \vb{r}')$ for large distances; adjacent particles interact directly
-        \item Sparse $\Lambda \to \mathcal{O}(n)$ projection
-        \item Naturally extended to time-dependent systems, 3D
-        \item Use $\tilde{\Lambda}^T$ to recover derivatives (such as $\partial_t^2 - c^2 \grad \grad$)
-      \end{itemize}
+%\begin{frame}[standout]
+  %\begingroup
+    %\Huge
+    %\begin{equation*}
+      %\mathcal{O}\qty(\frac{N_t N_s^2}{\alpha})
+    %\end{equation*}
+  %\endgroup
+  %\vfill
+  %\hfill ($50 \leqslant \alpha \leqslant 1000$)
+%\end{frame}
 
-      \begin{center}
-        \begin{tikzpicture}[>=latex]
-          \draw (0, 0) -- (10, 0);
-          \foreach \x in {0,2,...,10}
-            \draw (\x, -0.2) -- (\x, 0.2);
+%\begin{frame}{Spatial acceleration: uniform grid}
+  %\begin{columns}
+    %\column{0.75\textwidth}
+      %\begin{block}{Consider an easier problem (1D, without dynamics)}
+        %\begin{equation*}
+          %\vb{E}\qty(\vb{r}_\text{obs}) = \sum_\text{src} \mathfrak{g}\qty(\vb{r}_\text{obs}, \vb{r}_\text{src}) \rho\qty(\vb{r}_\text{src})
+        %\end{equation*}
+      %\end{block}
+      %\begin{itemize}
+        %\item Physics imposes translational invariance, symmetry: $\mathfrak{g}(\vb{r}_\text{obs}, \vb{r}_\text{src}) = \mathfrak{g}(\abs{\vb{r}_\text{obs} - \vb{r}_\text{src}})$
+        %\item Matrix with \emph{structure} (Toeplitz), diagonalized by Fourier transform (done quickly with \alert{FFT}, $\mathcal{O}(n \log n)$)
+      %\end{itemize}
 
-          \draw[<->, opacity=0.3] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
-          \draw[<->, opacity=0.3] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
-          \draw[<->, opacity=0.3] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
-          \draw[<->, opacity=0.3] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
-          \draw[<->, opacity=0.3] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
+      %\begin{center}
+        %\begin{tikzpicture}[>=latex]
+          %\draw (0, 0) -- (10, 0);
+          %\foreach \x in {0,2,...,10}
+            %\draw (\x, -0.2) -- (\x, 0.2);
 
-          \draw[<->, opacity=0.3] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
-          \draw[<->, opacity=0.3] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
-          \draw[<->, opacity=0.3] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
-          \draw[<->, opacity=0.3] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
+          %\draw[<->] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
+          %\draw[<->] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
+          %\draw[<->] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
+          %\draw[<->] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
+          %\draw[<->] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
 
-          \node[fill, circle, red, inner sep=1pt] (p1) at (0.5, 0.3) {};
-          \draw[->, red, very thick] (p1) -- (0, 0);
-          \draw[->, red] (p1) -- (2, 0);
+          %\draw[<->] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
+          %\draw[<->] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
+          %\draw[<->] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
+          %\draw[<->] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
+        %\end{tikzpicture}
+      %\end{center}
 
-          \node[fill, circle, red, inner sep=1pt] (p2) at (3, -0.3) {};
-          \draw[->, red, thick] (p2) -- (2, 0);
-          \draw[->, red, thick] (p2) -- (4, 0);
+    %\column{0.25\textwidth}
+      %\begin{center}
+        %\includegraphics[height=0.4\textheight]{figures/grid_1d}
+        %\begin{equation*}
+          %\vb{E} = \underbrace{\overbrace{G}^\text{FFT} \overbrace{\rho}^\text{FFT}}_\text{IFFT}
+        %\end{equation*}
+      %\end{center}
+  %\end{columns}
+%\end{frame}
+
+%\begin{frame}[b]{Spatial acceleration: nonuniform grid}
+  %\begin{columns}
+    %\column{0.75\textwidth}
+      %\textcolor{red!80!black}{Problem:} Sources do not lie on a uniform grid \\
+      %\textcolor{green!80!black}{Solution:} Represent them in terms of equivalent sources
+      %\begin{itemize}
+        %\item Can compress $\mathfrak{g}(\vb{r} - \vb{r}')$ for large distances; adjacent particles interact directly
+        %\item Sparse $\Lambda \to \mathcal{O}(n)$ projection
+        %\item Naturally extended to time-dependent systems, 3D
+        %\item Use $\tilde{\Lambda}^T$ to recover derivatives (such as $\partial_t^2 - c^2 \grad \grad$)
+      %\end{itemize}
+
+      %\begin{center}
+        %\begin{tikzpicture}[>=latex]
+          %\draw (0, 0) -- (10, 0);
+          %\foreach \x in {0,2,...,10}
+            %\draw (\x, -0.2) -- (\x, 0.2);
+
+          %\draw[<->, opacity=0.3] (0,0) to[out=30, in=150] node[midway, above] {$g_{12}$} (2,0);
+          %\draw[<->, opacity=0.3] (2,0) to[out=30, in=150] node[midway, above] {$g_{23}$} (4,0);
+          %\draw[<->, opacity=0.3] (4,0) to[out=30, in=150] node[midway, above] {$g_{34}$} (6,0);
+          %\draw[<->, opacity=0.3] (6,0) to[out=30, in=150] node[midway, above] {$g_{45}$} (8,0);
+          %\draw[<->, opacity=0.3] (8,0) to[out=30, in=150] node[midway, above] {$g_{56}$} (10,0);
+
+          %\draw[<->, opacity=0.3] (0,0) to[out=-30, in=210] node[midway, below] {$g_{13}$} (4,0);
+          %\draw[<->, opacity=0.3] (2,0) to[out=-30, in=210] node[midway, below] {$g_{24}$} (6,0);
+          %\draw[<->, opacity=0.3] (4,0) to[out=-30, in=210] node[midway, below] {$g_{35}$} (8,0);
+          %\draw[<->, opacity=0.3] (6,0) to[out=-30, in=210] node[midway, below] {$g_{46}$} (10,0);
+
+          %\node[fill, circle, red, inner sep=1pt] (p1) at (0.5, 0.3) {};
+          %\draw[->, red, very thick] (p1) -- (0, 0);
+          %\draw[->, red] (p1) -- (2, 0);
+
+          %\node[fill, circle, red, inner sep=1pt] (p2) at (3, -0.3) {};
+          %\draw[->, red, thick] (p2) -- (2, 0);
+          %\draw[->, red, thick] (p2) -- (4, 0);
           
-          \node[fill, circle, red, inner sep=1pt] (p3) at (6.5, 0.3) {};
-          \node[fill, circle, red, inner sep=1pt] (p4) at (7.2, -0.3) {};
-          \draw[->, red, very thick] (p3) -- (6, 0);
-          \draw[->, red] (p3) -- (8, 0);
-          \draw[->, red] (p4) -- (6, 0);
-          \draw[->, red, very thick] (p4) -- (8, 0);
+          %\node[fill, circle, red, inner sep=1pt] (p3) at (6.5, 0.3) {};
+          %\node[fill, circle, red, inner sep=1pt] (p4) at (7.2, -0.3) {};
+          %\draw[->, red, very thick] (p3) -- (6, 0);
+          %\draw[->, red] (p3) -- (8, 0);
+          %\draw[->, red] (p4) -- (6, 0);
+          %\draw[->, red, very thick] (p4) -- (8, 0);
 
-          \node[fill, circle, red, inner sep=1pt] (p5) at (10.0, 0.5) {};
-          \draw[->, red, very thick] (p5) -- (10, 0);
-        \end{tikzpicture}
-      \end{center}
+          %\node[fill, circle, red, inner sep=1pt] (p5) at (10.0, 0.5) {};
+          %\draw[->, red, very thick] (p5) -- (10, 0);
+        %\end{tikzpicture}
+      %\end{center}
 
-    \column{0.25\textwidth}
-      \begin{center}
-        \includegraphics[height=0.4\textheight]{figures/dense_1d}
-        \begin{equation*}
-          \vb{E} = \textcolor{red}{\Lambda^T} \underbrace{\overbrace{G}^\text{FFT} \overbrace{\textcolor{red}{\Lambda} \rho}^\text{FFT}}_\text{IFFT}
-        \end{equation*}
-      \end{center}
-  \end{columns}
-\end{frame}
+    %\column{0.25\textwidth}
+      %\begin{center}
+        %\includegraphics[height=0.4\textheight]{figures/dense_1d}
+        %\begin{equation*}
+          %\vb{E} = \textcolor{red}{\Lambda^T} \underbrace{\overbrace{G}^\text{FFT} \overbrace{\textcolor{red}{\Lambda} \rho}^\text{FFT}}_\text{IFFT}
+        %\end{equation*}
+      %\end{center}
+  %\end{columns}
+%\end{frame}
 
-\begin{frame}{Steps}
-  \begin{center}
-    \begin{tikzpicture}[>=latex]
-      %\draw (0, 0) -- (10, 0);
-      \foreach \y in {0, -2, -4, -6}{
-        \draw (0,\y) -- (10, \y);
-        \foreach \x in {0,2,...,10} {
-          \draw ($(\x, \y - 0.2)$) -- ($(\x, \y + 0.2)$);
-        }
+%\begin{frame}{Steps}
+  %\begin{center}
+    %\begin{tikzpicture}[>=latex]
+      %%\draw (0, 0) -- (10, 0);
+      %\foreach \y in {0, -2, -4, -6}{
+        %\draw (0,\y) -- (10, \y);
+        %\foreach \x in {0,2,...,10} {
+          %\draw ($(\x, \y - 0.2)$) -- ($(\x, \y + 0.2)$);
+        %}
 
-        \node[fill, circle, inner sep=1pt] at ($(0.5, \y + 0.3)$) {};
-        \node[fill, circle, inner sep=1pt] at ($(3, \y - 0.3)$) {};
-        \node[fill, circle, inner sep=1pt] at ($(6.5, \y + 0.3)$) {};
-        \node[fill, circle, inner sep=1pt] at ($(7.2, \y - 0.3)$) {};
-        \node[fill, circle, inner sep=1pt] at ($(10, \y + 0.5)$) {};
-      }
+        %\node[fill, circle, inner sep=1pt] at ($(0.5, \y + 0.3)$) {};
+        %\node[fill, circle, inner sep=1pt] at ($(3, \y - 0.3)$) {};
+        %\node[fill, circle, inner sep=1pt] at ($(6.5, \y + 0.3)$) {};
+        %\node[fill, circle, inner sep=1pt] at ($(7.2, \y - 0.3)$) {};
+        %\node[fill, circle, inner sep=1pt] at ($(10, \y + 0.5)$) {};
+      %}
 
-      \node[anchor=west] at (10.5, 0) {Project};
-      \node[anchor=west] at (10.5, -2) {Propagate};
-      \node[anchor=west] at (10.5, -4) {Recover};
-      \node[anchor=west] at (10.5, -6) {Correct};
+      %\node[anchor=west] at (10.5, 0) {Project};
+      %\node[anchor=west] at (10.5, -2) {Propagate};
+      %\node[anchor=west] at (10.5, -4) {Recover};
+      %\node[anchor=west] at (10.5, -6) {Correct};
 
-      \draw[->, red, very thick] (0.5, 0.3) -- (0, 0);
-      \draw[->, red] (0.5, 0.3) -- (2, 0);
+      %\draw[->, red, very thick] (0.5, 0.3) -- (0, 0);
+      %\draw[->, red] (0.5, 0.3) -- (2, 0);
 
-      \draw[->, red, thick] (3, -0.3) -- (2, 0);
-      \draw[->, red, thick] (3, -0.3) -- (4, 0);
+      %\draw[->, red, thick] (3, -0.3) -- (2, 0);
+      %\draw[->, red, thick] (3, -0.3) -- (4, 0);
       
-      \draw[->, red, very thick] (6.5, 0.3) -- (6, 0);
-      \draw[->, red] (6.5, 0.3) -- (8, 0);
-      \draw[->, red] (7.2, -0.3) -- (6, 0);
-      \draw[->, red, very thick] (7.2, -0.3) -- (8, 0);
+      %\draw[->, red, very thick] (6.5, 0.3) -- (6, 0);
+      %\draw[->, red] (6.5, 0.3) -- (8, 0);
+      %\draw[->, red] (7.2, -0.3) -- (6, 0);
+      %\draw[->, red, very thick] (7.2, -0.3) -- (8, 0);
 
-      \draw[->, red, very thick] (10, 0.5) -- (10, 0);
+      %\draw[->, red, very thick] (10, 0.5) -- (10, 0);
 
-      %%=================================================================
+      %%%=================================================================
 
-      \draw (0, -2) -- (10, -2);
-      \foreach \x in {2,4,...,10} {
-        \draw[<->, green!50!black] (0,-2) to[out=15, in=165] node[midway, above] {} (\x,-2);
-      }
+      %\draw (0, -2) -- (10, -2);
+      %\foreach \x in {2,4,...,10} {
+        %\draw[<->, green!50!black] (0,-2) to[out=15, in=165] node[midway, above] {} (\x,-2);
+      %}
       
-      %%=================================================================
+      %%%=================================================================
 
-      \draw[<-, blue, very thick] (0.5, -3.7) -- (0, -4);
-      \draw[<-, yellow] (0.5, -3.7) -- (2, -4);
+      %\draw[<-, blue, very thick] (0.5, -3.7) -- (0, -4);
+      %\draw[<-, yellow] (0.5, -3.7) -- (2, -4);
 
-      \draw[<-, magenta, thick] (3, -4.3) -- (2, -4);
-      \draw[<-, red, thick] (3, -4.3) -- (4, -4);
+      %\draw[<-, magenta, thick] (3, -4.3) -- (2, -4);
+      %\draw[<-, red, thick] (3, -4.3) -- (4, -4);
       
-      \draw[<-, green, very thick] (6.5, -3.7) -- (6, -4);
-      \draw[<-, purple] (6.5, -3.7) -- (8, -4);
-      \draw[<-, blue] (7.2, -4.3) -- (6, -4);
-      \draw[<-, green, very thick] (7.2, -4.3) -- (8, -4);
+      %\draw[<-, green, very thick] (6.5, -3.7) -- (6, -4);
+      %\draw[<-, purple] (6.5, -3.7) -- (8, -4);
+      %\draw[<-, blue] (7.2, -4.3) -- (6, -4);
+      %\draw[<-, green, very thick] (7.2, -4.3) -- (8, -4);
 
-      \draw[<-, yellow, very thick] (10, -3.5) -- (10, -4);
+      %\draw[<-, yellow, very thick] (10, -3.5) -- (10, -4);
 
-      %%=================================================================
+      %%%=================================================================
 
-      \draw[<->, red, very thick] (0.5, -5.7) -- (0, -6);
-      \draw[<->, red] (0,-6) to[out=15, in=165] node[midway, above] {} (2,-6);
-      \draw[<->, red, thick] (3, -6.3) -- (2, -6);
-      \draw[<->, green!50!black, thick] (0.5, -5.7) to[out=-40, in=200] (3, -6.3);
+      %\draw[<->, red, very thick] (0.5, -5.7) -- (0, -6);
+      %\draw[<->, red] (0,-6) to[out=15, in=165] node[midway, above] {} (2,-6);
+      %\draw[<->, red, thick] (3, -6.3) -- (2, -6);
+      %\draw[<->, green!50!black, thick] (0.5, -5.7) to[out=-40, in=200] (3, -6.3);
 
-      \draw[<->, red, very thick] (6.5, -5.7) -- (6, -6);
-      \draw[<->, red] (6,-6) to[out=15, in=165] node[midway, above] {} (8,-6);
-      \draw[<->, red, thick] (7.2, -6.3) -- (8, -6);
-      \draw[<->, green!50!black, thick] (6.5, -5.7) to[out=-80, in=170] (7.2, -6.3);
+      %\draw[<->, red, very thick] (6.5, -5.7) -- (6, -6);
+      %\draw[<->, red] (6,-6) to[out=15, in=165] node[midway, above] {} (8,-6);
+      %\draw[<->, red, thick] (7.2, -6.3) -- (8, -6);
+      %\draw[<->, green!50!black, thick] (6.5, -5.7) to[out=-80, in=170] (7.2, -6.3);
 
-    \end{tikzpicture}
-  \end{center}
-\end{frame}
+    %\end{tikzpicture}
+  %\end{center}
+%\end{frame}
 
-\begin{frame}[standout]
-  \begingroup
-    \Huge
-    \begin{equation*}
-      \mathcal{O}\qty(\frac{N_t N_s \log N_s}{\alpha})
-    \end{equation*}
-  \endgroup
-\end{frame}
+%\begin{frame}[standout]
+  %\begingroup
+    %\Huge
+    %\begin{equation*}
+      %\mathcal{O}\qty(\frac{N_t N_s \log N_s}{\alpha})
+    %\end{equation*}
+  %\endgroup
+%\end{frame}
 
-\begin{frame}{Layered redundancies}
-  \begin{center}
-    Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2) \to$ \alert{(years)}
-  \end{center}
-  \begin{block}{Neglect high frequencies}
-    High-frequency terms barely affect dynamics; downshift to baseband.
-  \end{block}
-  \begin{block}{Fewer degrees-of-freedom}
-    $\mathfrak{g}(\vb{r}, \vb{r}'; t, t')$ compressible; aggregate adjacent sources and transmit once.
-  \end{block}
-  \begin{block}{Imposed translational invariance}
-    $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)$ structured on grid; FFT accelerates $\iint_{}\mathfrak{g}(\vb{r} - \vb{r}', t - t') \vb{J}(\vb{r'}, t') \dd[3]{\vb{r}'} \dd{t'}$.
-  \end{block}
-  \begin{center}
-    Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(minutes)}
-  \end{center}
-\end{frame}
+%\begin{frame}{Layered redundancies}
+  %\begin{center}
+    %Algorithmic complexity: $\displaystyle\mathcal{O}(N_t N_s^2) \to$ \alert{(years)}
+  %\end{center}
+  %\begin{block}{Neglect high frequencies}
+    %High-frequency terms barely affect dynamics; downshift to baseband.
+  %\end{block}
+  %\begin{block}{Fewer degrees-of-freedom}
+    %$\mathfrak{g}(\vb{r}, \vb{r}'; t, t')$ compressible; aggregate adjacent sources and transmit once.
+  %\end{block}
+  %\begin{block}{Imposed translational invariance}
+    %$\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)$ structured on grid; FFT accelerates $\iint_{}\mathfrak{g}(\vb{r} - \vb{r}', t - t') \vb{J}(\vb{r'}, t') \dd[3]{\vb{r}'} \dd{t'}$.
+  %\end{block}
+  %\begin{center}
+    %Optimal algorithmic complexity: $\displaystyle\mathcal{O}\qty(\frac{N_t}{\alpha} N_s \log N_s) \to$ \alert{(minutes)}
+  %\end{center}
+%\end{frame}
 
-\begin{frame}{Time measuremnets}
-  \input{figures/potential_timing.tex}
-\end{frame}
+%\begin{frame}{Time measuremnets}
+  %\input{figures/potential_timing.tex}
+%\end{frame}
 
-\begin{frame}{Frame comparison}
-  \begin{columns}
-    \column{0.4\textwidth}
-      \begin{itemize}
-        \item Evolution of 10k particles
-        \item $\vb{J}$ derived from $\rho$
-        \item Comparison of single trajectory before/after downshifting
-      \end{itemize}
+%\begin{frame}{Frame comparison}
+  %\begin{columns}
+    %\column{0.4\textwidth}
+      %\begin{itemize}
+        %\item Evolution of 10k particles
+        %\item $\vb{J}$ derived from $\rho$
+        %\item Comparison of single trajectory before/after downshifting
+      %\end{itemize}
 
-      \vspace{0.5cm}
-      \begin{tikzpicture}[node distance=0.8cm, >=latex]
-        \tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
-        \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
-        \tikzstyle{arrow} = [thick,->,>=stealth]
+      %\vspace{0.5cm}
+      %\begin{tikzpicture}[node distance=0.8cm, >=latex]
+        %\tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
+        %\tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
+        %\tikzstyle{arrow} = [thick,->,>=stealth]
 
-        \node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
-        \node (em) [engineering, below= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
+        %\node (quantum) [physics, align=center] {Integrate ODE to advance $\hat{\rho}$ by $\Delta t$; \\ Feed $\vb{J}$ into Maxwell as new source};
+        %\node (em) [engineering, below= of quantum, align=center] {Convolve currents to propagate $\vb{E}$; \\ Feed into Liouville as new RHS};
 
-        \draw [arrow] ($(quantum.south)+(1.0,0)$) -- ($(em.north)+(1.0,0)$);
-        \draw [arrow] ($(em.north)-(1.0,0)$) -- ($(quantum.south)-(1.0,0)$);
-      \end{tikzpicture}
+        %\draw [arrow] ($(quantum.south)+(1.0,0)$) -- ($(em.north)+(1.0,0)$);
+        %\draw [arrow] ($(em.north)-(1.0,0)$) -- ($(quantum.south)-(1.0,0)$);
+      %\end{tikzpicture}
 
-    \column{0.6\textwidth}
-      \begin{center}
-        \input{figures/frame_comparison}
-      \end{center}
-  \end{columns}
-\end{frame}
+    %\column{0.6\textwidth}
+      %\begin{center}
+        %\input{figures/frame_comparison}
+      %\end{center}
+  %\end{columns}
+%\end{frame}
 
 
-\begin{frame}{Collective dynamics}
-  \begin{center}
-    \input{figures/density_stats}
-  \end{center}
-\end{frame}
+%\begin{frame}{Collective dynamics}
+  %\begin{center}
+    %\input{figures/density_stats}
+  %\end{center}
+%\end{frame}
 
-\begin{frame}{``Current'' hotspots (energy confinement)}
-  \vspace{-0.3cm}
-  \begin{center}
-    \begin{tikzpicture}
-      \begin{axis}[
-          hide axis,
-          scale only axis,
-          height=0pt,
-          width=0pt,
-          colormap/viridis,
-          colorbar horizontal,
-          point meta min=0.32,
-          point meta max=0.40,
-          colorbar style={
-              title style={yshift=-0.80cm, color=white},
-              title=Spatial distribution of $\rho_{00}$,
-              width=0.75\textwidth,
-              xtick={0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40},
-              xticklabels={$\le 0.32$, $0.33$, $0.34$, $0.35$, $0.36$, $0.37$, $0.38$, $0.39$, $0.40 \le$}
-          }]
-          \addplot [draw=none] coordinates {(0,0)};
-      \end{axis}
-    \end{tikzpicture} 
-    \begin{tikzpicture}[>=latex]
-      \draw[thick, ->] (-6.5,0) -- (-6.5,-4.5) node[midway, above, rotate=90]{Time};
-      \node (tube0) at (0,-0.0) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_0}};
-      \node (tube1) at (0,-1.5) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_1}};
-      \node (tube2) at (0,-3.0) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_2}};
-      \node (tube3) at (0,-4.5) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_3}};
-      %\draw[->] (6.5,0) -- (6.5,-4.5) node[midway, above, rotate=-90]{Time};
-      \path[->] (7.5,0) -- (7.5,-4.5);
-    \end{tikzpicture} 
-  \end{center}
-\end{frame}
+%\begin{frame}{``Current'' hotspots (energy confinement)}
+  %\vspace{-0.3cm}
+  %\begin{center}
+    %\begin{tikzpicture}
+      %\begin{axis}[
+          %hide axis,
+          %scale only axis,
+          %height=0pt,
+          %width=0pt,
+          %colormap/viridis,
+          %colorbar horizontal,
+          %point meta min=0.32,
+          %point meta max=0.40,
+          %colorbar style={
+              %title style={yshift=-0.80cm, color=white},
+              %title=Spatial distribution of $\rho_{00}$,
+              %width=0.75\textwidth,
+              %xtick={0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40},
+              %xticklabels={$\le 0.32$, $0.33$, $0.34$, $0.35$, $0.36$, $0.37$, $0.38$, $0.39$, $0.40 \le$}
+          %}]
+          %\addplot [draw=none] coordinates {(0,0)};
+      %\end{axis}
+    %\end{tikzpicture} 
+    %\begin{tikzpicture}[>=latex]
+      %\draw[thick, ->] (-6.5,0) -- (-6.5,-4.5) node[midway, above, rotate=90]{Time};
+      %\node (tube0) at (0,-0.0) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_0}};
+      %\node (tube1) at (0,-1.5) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_1}};
+      %\node (tube2) at (0,-3.0) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_2}};
+      %\node (tube3) at (0,-4.5) {\includegraphics[width=0.9\textwidth]{figures/tube/tube_print_3}};
+      %%\draw[->] (6.5,0) -- (6.5,-4.5) node[midway, above, rotate=-90]{Time};
+      %\path[->] (7.5,0) -- (7.5,-4.5);
+    %\end{tikzpicture} 
+  %\end{center}
+%\end{frame}
 
-\begin{frame}{Future work}
-  \begin{itemize}
-    \item[] Code
-      \begin{itemize}
-        \item Ergonomics
-        \item Rigorous performance analysis, tuning
-        \item Cyberinfrastructure: visualization tools
-        \item Python wrapper
-        \item Unit tests
-      \end{itemize}
+%\begin{frame}{Future work}
+  %\begin{itemize}
+    %\item[] Code
+      %\begin{itemize}
+        %\item Ergonomics
+        %\item Rigorous performance analysis, tuning
+        %\item Cyberinfrastructure: visualization tools
+        %\item Python wrapper
+        %\item Unit tests
+      %\end{itemize}
 
-    \item[] Science
-      \begin{itemize}
-        \item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
-        \item Advanced dissipators ($r^{-1}$ coupling, better captures collective phenomena)
-        \item Improved grid representation (more moments from fewer projections, fields from Chebyshev polynomials)
-        \item Multi-level FFT
-      \end{itemize}
-  \end{itemize}
-\end{frame}
+    %\item[] Science
+      %\begin{itemize}
+        %\item Additional dynamical systems (nanomagnetics, biexcitons, degenerate states)
+        %\item Advanced dissipators ($r^{-1}$ coupling, better captures collective phenomena)
+        %\item Improved grid representation (more moments from fewer projections, fields from Chebyshev polynomials)
+        %\item Multi-level FFT
+      %\end{itemize}
+  %\end{itemize}
+%\end{frame}
 
-\section{QuEST}
+%\section{QuEST}
 
-\begin{frame}{Software features}
-  \begin{columns}
-    \column{0.5\textwidth}
-      \begin{itemize}
-        \item Modern C++
-        \item CMake
-        \item Object-oriented
-          \begin{itemize}
-            \item Integrator, RHS function
-            \item Interactions
-            \item Assistance classes
-          \end{itemize}
-        \item Unit tests
-        \item Additional tools
-          \begin{itemize}
-            \item Data manipulation
-            \item Visualization
-            \item Math
-          \end{itemize}
-        \item Clang-format
-        \item Developed on git
-      \end{itemize}
+%\begin{frame}{Software features}
+  %\begin{columns}
+    %\column{0.5\textwidth}
+      %\begin{itemize}
+        %\item Modern C++
+        %\item CMake
+        %\item Object-oriented
+          %\begin{itemize}
+            %\item Integrator, RHS function
+            %\item Interactions
+            %\item Assistance classes
+          %\end{itemize}
+        %\item Unit tests
+        %\item Additional tools
+          %\begin{itemize}
+            %\item Data manipulation
+            %\item Visualization
+            %\item Math
+          %\end{itemize}
+        %\item Clang-format
+        %\item Developed on git
+      %\end{itemize}
 
-    \column{0.5\textwidth}
-      \begin{center}
-        \vspace{-0.5cm}
-        \href{https://www.github.com/cglosser/quest}{
-          \includegraphics[width=\textwidth]{figures/github.png}
-        }
-        \url{https://github.com/cglosser/quest}
-      \end{center}
-  \end{columns}
-\end{frame}
+    %\column{0.5\textwidth}
+      %\begin{center}
+        %\vspace{-0.5cm}
+        %\href{https://www.github.com/cglosser/quest}{
+          %\includegraphics[width=\textwidth]{figures/github.png}
+        %}
+        %\url{https://github.com/cglosser/quest}
+      %\end{center}
+  %\end{columns}
+%\end{frame}
 
-\begin{frame}{Hierarchy}
-  \begin{center}
-    \begin{tikzpicture}[node distance=0.8cm, >=latex]
-      \tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
-      \tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
-      \tikzstyle{both} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=Fuchsia!20]
-      \tikzstyle{arrow} = [thick,->,>=stealth]
+%\begin{frame}{Hierarchy}
+  %\begin{center}
+    %\begin{tikzpicture}[node distance=0.8cm, >=latex]
+      %\tikzstyle{physics} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=blue!10]
+      %\tikzstyle{engineering} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!10]
+      %\tikzstyle{both} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=Fuchsia!20]
+      %\tikzstyle{arrow} = [thick,->,>=stealth]
 
-      \node (quest) [both] {\textbf{QuEST}};
-      \node (ode) [physics, below= of quest] {ODE};
-      \node (radiation) [engineering, right= of quest] {Radiation};
+      %\node (quest) [both] {\textbf{QuEST}};
+      %\node (ode) [physics, below= of quest] {ODE};
+      %\node (radiation) [engineering, right= of quest] {Radiation};
 
-      \draw [arrow] (ode) -- (quest);
-      \draw [arrow] (radiation) -- (quest);
+      %\draw [arrow] (ode) -- (quest);
+      %\draw [arrow] (radiation) -- (quest);
 
-      \node (interactions) [engineering, below= of radiation] {Interactions};
-      \node (integration) [physics, below= of ode] {Integration};
-      \node (rhs) [physics, below= of integration] {RHS functions};
-      \node (history) [both, right= of rhs] {History};
+      %\node (interactions) [engineering, below= of radiation] {Interactions};
+      %\node (integration) [physics, below= of ode] {Integration};
+      %\node (rhs) [physics, below= of integration] {RHS functions};
+      %\node (history) [both, right= of rhs] {History};
 
-      \draw [arrow] (interactions) -- (radiation);
-      \draw [arrow] (integration) -- (ode);
-      \draw [arrow] (history) -- (integration);
-      \draw [arrow] (rhs) -- (integration);
+      %\draw [arrow] (interactions) -- (radiation);
+      %\draw [arrow] (integration) -- (ode);
+      %\draw [arrow] (history) -- (integration);
+      %\draw [arrow] (rhs) -- (integration);
 
-      \node (pulse) [engineering, right= of radiation] {Pulse};
+      %\node (pulse) [engineering, right= of radiation] {Pulse};
 
-      \draw [arrow](pulse) -- (interactions);
+      %\draw [arrow](pulse) -- (interactions);
 
-      \node (direct) [engineering, right= of interactions] {Direct};
-      \node (interpolation) [engineering, below= of interactions] {Interpolation};
-      \node (aim) [engineering, below= of direct] {AIM};
+      %\node (direct) [engineering, right= of interactions] {Direct};
+      %\node (interpolation) [engineering, below= of interactions] {Interpolation};
+      %\node (aim) [engineering, below= of direct] {AIM};
 
-      \node (fft) [engineering, below= of aim] {FFT};
+      %\node (fft) [engineering, below= of aim] {FFT};
 
-      \draw [arrow] (history) -- (interpolation);
-      \draw [arrow] (interpolation) -- (interactions);
-      \draw [arrow] (direct) -- (interpolation);
-      \draw [arrow] (aim) -- (interpolation);
-      \draw [arrow] (fft) -- (aim);
+      %\draw [arrow] (history) -- (interpolation);
+      %\draw [arrow] (interpolation) -- (interactions);
+      %\draw [arrow] (direct) -- (interpolation);
+      %\draw [arrow] (aim) -- (interpolation);
+      %\draw [arrow] (fft) -- (aim);
 
-    \end{tikzpicture}
-  \end{center}
-\end{frame}
+    %\end{tikzpicture}
+  %\end{center}
+%\end{frame}
 
-\begin{frame}{Other things I've worked on}
-  \begin{itemize}
-    \item[] Particle motion
-      \begin{itemize}
-        \item Integral-equation model of acoustophoresis (moving microbubbles)
-        \item Coordination-based hydrocarbon bonding potential
-      \end{itemize}
-    \item[] Nanostructure inverse problem, reconstruction (Tribond)
-    \item[] Computational physics education
-      \begin{itemize}
-        \item \textbf{I}nternational \textbf{C}ourse in \textbf{C}omputational \textbf{P}hysics
-        \item Course development, teaching assistantships (PHY170, CMSE201)
-        \item Introductory workshops (highschool and college level)
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-\appendix
+%\begin{frame}{Other things I've worked on}
+  %\begin{itemize}
+    %\item[] Particle motion
+      %\begin{itemize}
+        %\item Integral-equation model of acoustophoresis (moving microbubbles)
+        %\item Coordination-based hydrocarbon bonding potential
+      %\end{itemize}
+    %\item[] Nanostructure inverse problem, reconstruction (Tribond)
+    %\item[] Computational physics education
+      %\begin{itemize}
+        %\item \textbf{I}nternational \textbf{C}ourse in \textbf{C}omputational \textbf{P}hysics
+        %\item Course development, teaching assistantships (PHY170, CMSE201)
+        %\item Introductory workshops (highschool and college level)
+      %\end{itemize}
+  %\end{itemize}
+%\end{frame}
+%\appendix
 
-\begin{frame}[standout]
-  Questions?
-\end{frame}
+%\begin{frame}[standout]
+  %Questions?
+%\end{frame}
 
-\begin{frame}{Units}
-  \begin{table}
-    \begin{tabular}{lll}
-      Quantity                 & Symbol            & Value                        \\ \hline \hline
-      Speed of light           & $c$               & \SI{300}{\micro\meter \per \pico\second} \\
-      Transition frequency     & $\omega_0$        & $\SI{1500}{\milli\eV}/\hbar$ \\
-      Transition dipole moment & $\vb{d}$          & \SI{10}{\elementarycharge\bohr} (uniform) \\
-      Relaxation times         & $T_{1}, T_{2}$    & \SIlist{10;20}{\pico\second} \\
-      Laser frequency          & $\omega_L$        & $\SI{1500}{\milli\eV}/\hbar$ \\
-      Laser wavevector         & $\vb{k}_L$        & $\omega_L/c$ ($\vb{k}_L \cdot \vb{d} = 0$) \\
-      Pulse width              & $\sigma/\omega_L$ & \SI{1}{\pico\second} \\ \hline
-      Integrator window        & $W$               & 20 \\
-      Corrector iterations     & N/A               & max 10 (usually 4-6) \\
-      Timestep                 & $\Delta t$        & \SI{0.5e-2}{\pico\second}
-    \end{tabular}
-  \end{table}
-\end{frame}
+%\begin{frame}{Units}
+  %\begin{table}
+    %\begin{tabular}{lll}
+      %Quantity                 & Symbol            & Value                        \\ \hline \hline
+      %Speed of light           & $c$               & \SI{300}{\micro\meter \per \pico\second} \\
+      %Transition frequency     & $\omega_0$        & $\SI{1500}{\milli\eV}/\hbar$ \\
+      %Transition dipole moment & $\vb{d}$          & \SI{10}{\elementarycharge\bohr} (uniform) \\
+      %Relaxation times         & $T_{1}, T_{2}$    & \SIlist{10;20}{\pico\second} \\
+      %Laser frequency          & $\omega_L$        & $\SI{1500}{\milli\eV}/\hbar$ \\
+      %Laser wavevector         & $\vb{k}_L$        & $\omega_L/c$ ($\vb{k}_L \cdot \vb{d} = 0$) \\
+      %Pulse width              & $\sigma/\omega_L$ & \SI{1}{\pico\second} \\ \hline
+      %Integrator window        & $W$               & 20 \\
+      %Corrector iterations     & N/A               & max 10 (usually 4-6) \\
+      %Timestep                 & $\Delta t$        & \SI{0.5e-2}{\pico\second}
+    %\end{tabular}
+  %\end{table}
+%\end{frame}
 
-\begin{frame}{Lightning review of (linear) Green's functions}
-  \only<1>{
-    To solve the following differential equation for $a(x)$ \ldots
-    \begin{equation*}
-      \hat{\mathcal{L}}\qty[a(x)] = b(x)
-    \end{equation*}
-    \ldots it's far easier to \emph{first} find the Green's function,
-    \begin{equation*}
-      \hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
-    \end{equation*}
-    Then,
-    \begin{align*}
-      \hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
-                                  &= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
-                     \Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
-    \end{align*}
-  }
-  \only<2>{
-    \begin{block}{Laplace equation}
-      \begin{equation*}
-        \laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
-      \end{equation*}
-    \end{block}
+%\begin{frame}{Lightning review of (linear) Green's functions}
+  %\only<1>{
+    %To solve the following differential equation for $a(x)$ \ldots
+    %\begin{equation*}
+      %\hat{\mathcal{L}}\qty[a(x)] = b(x)
+    %\end{equation*}
+    %\ldots it's far easier to \emph{first} find the Green's function,
+    %\begin{equation*}
+      %\hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
+    %\end{equation*}
+    %Then,
+    %\begin{align*}
+      %\hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
+                                  %&= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
+                     %\Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
+    %\end{align*}
+  %}
+  %\only<2>{
+    %\begin{block}{Laplace equation}
+      %\begin{equation*}
+        %\laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
+      %\end{equation*}
+    %\end{block}
 
-    \begin{block}{Wave equation}
-      \begin{equation*}
-        \qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{1}{\abs{\vb{r} - \vb{r}'}} \delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})
-      \end{equation*}
-    \end{block}
-  }
-\end{frame}
+    %\begin{block}{Wave equation}
+      %\begin{equation*}
+        %\qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{1}{\abs{\vb{r} - \vb{r}'}} \delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})
+      %\end{equation*}
+    %\end{block}
+  %}
+%\end{frame}
 
-\begin{frame}{An electric-field wave equation}
-  \vspace{0.7cm}
-  \begin{columns}
-    \column{0.6\textwidth}
-        \begin{equation*}
-          \laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
-        \end{equation*}
-        \begin{itemize}
-          \item Incorporates short and long-range effects
-          \item Automatic radiation boundary conditions
-          \item Point-to-point communication; no numerical dispersion
-          \item \alert{Four} derivatives, two spatial and two temporal
-        \end{itemize}
+%\begin{frame}{An electric-field wave equation}
+  %\vspace{0.7cm}
+  %\begin{columns}
+    %\column{0.6\textwidth}
+        %\begin{equation*}
+          %\laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
+        %\end{equation*}
+        %\begin{itemize}
+          %\item Incorporates short and long-range effects
+          %\item Automatic radiation boundary conditions
+          %\item Point-to-point communication; no numerical dispersion
+          %\item \alert{Four} derivatives, two spatial and two temporal
+        %\end{itemize}
 
-    \column{0.4\textwidth}
-      \centering
-      \includegraphics[width=0.5\textwidth]{figures/dipoles_2.png}
-  \end{columns}
+    %\column{0.4\textwidth}
+      %\centering
+      %\includegraphics[width=0.5\textwidth]{figures/dipoles_2.png}
+  %\end{columns}
 
-  \begin{equation*}
-    \mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
-        \left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} +
-        \left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
-          \frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
-          \frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
-        )
-      \, \mathrm{d}^3 \mathbf{r'}
-  \end{equation*}
-\end{frame}
+  %\begin{equation*}
+    %\mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
+        %\left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} +
+        %\left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
+          %\frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
+          %\frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
+        %)
+      %\, \mathrm{d}^3 \mathbf{r'}
+  %\end{equation*}
+%\end{frame}
 
-\begin{frame}{Classical electrodynamics: procedureally solving a matrix equation}
-  \begin{block}{Marching-on-in-Time}
-    \begin{equation*}
-    \oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
-    \end{equation*}
-  \end{block}
+%\begin{frame}{Classical electrodynamics: procedureally solving a matrix equation}
+  %\begin{block}{Marching-on-in-Time}
+    %\begin{equation*}
+    %\oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
+    %\end{equation*}
+  %\end{block}
 
-  \vspace{-0.5cm}
-  \begin{equation*}
-    \underbrace{\mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)})}_\text{Laser} +
-    \underbrace{\mqty(
-      \oper{Z}^{(0)} \\
-      \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-                                & \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      )}_\text{Interaction weights (precalculated)} \cdot
-    \underbrace{\mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)})}_\text{Sources} =
-    \underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
-  \end{equation*}
+  %\vspace{-0.5cm}
+  %\begin{equation*}
+    %\underbrace{\mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)})}_\text{Laser} +
+    %\underbrace{\mqty(
+      %\oper{Z}^{(0)} \\
+      %\oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+      %\oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+      %\oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+                                %& \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
+      %)}_\text{Interaction weights (precalculated)} \cdot
+    %\underbrace{\mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)})}_\text{Sources} =
+    %\underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
+  %\end{equation*}
 
-  \begin{equation*}
-    \oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
-    \oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
-    \oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
-  \end{equation*}
-\end{frame}
+  %\begin{equation*}
+    %\oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
+    %\oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
+    %\oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
+  %\end{equation*}
+%\end{frame}
 
-\begin{frame}{Simulated quantum dot = two-level quantum system}
-  \begin{columns}
-    \column{0.5\textwidth}
-      \begin{block}{Liouville equation}
-        \begin{equation*}
-          \dv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
-        \end{equation*}
-        \hfill {\tiny(mixed-state analogue of Schr\"odinger equation)}
-      \end{block}
+%\begin{frame}{Simulated quantum dot = two-level quantum system}
+  %\begin{columns}
+    %\column{0.5\textwidth}
+      %\begin{block}{Liouville equation}
+        %\begin{equation*}
+          %\dv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
+        %\end{equation*}
+        %\hfill {\tiny(mixed-state analogue of Schr\"odinger equation)}
+      %\end{block}
 
-      \begin{itemize}
-        \item Density matrix representation
-        \item $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenologically) incorporates decay and decoherence
-        \item Rabi oscillations
-        \item One wavefunction/dot
-          \begin{itemize}
-            \item No universal wavefunction
-            \item \emph{Classical} electromagnetic propagation
-          \end{itemize}
-      \end{itemize}
+      %\begin{itemize}
+        %\item Density matrix representation
+        %\item $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenologically) incorporates decay and decoherence
+        %\item Rabi oscillations
+        %\item One wavefunction/dot
+          %\begin{itemize}
+            %\item No universal wavefunction
+            %\item \emph{Classical} electromagnetic propagation
+          %\end{itemize}
+      %\end{itemize}
 
-    \column{0.5\textwidth}
-      \begin{center}
-        \input{figures/example_evolution}
-      \end{center}
+    %\column{0.5\textwidth}
+      %\begin{center}
+        %\input{figures/example_evolution}
+      %\end{center}
 
-      \vspace{-1.0cm}
-      \begin{align*}
-        \hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
-        \hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
-      \end{align*}
-  \end{columns}
-\end{frame}
+      %\vspace{-1.0cm}
+      %\begin{align*}
+        %\hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
+        %\hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
+      %\end{align*}
+  %\end{columns}
+%\end{frame}
 
-\begin{frame}{Quantum transitions are spectrally pure}
-  \includegraphics[width=\textwidth, height=0.5cm]{figures/Helium_spectrum_visible}
-      \begin{block}{Liouville equation (rotating frame)}
-        \begin{gather*}
-          \dv{\tilde{\rho}}{t} = -\frac{i}{\hbar} \commutator{\hat{U}\hat{\oper{H}}\hat{U}^\dagger - i\hbar \hat{V}}{\tilde{\rho}} - \hat{\oper{D}}\qty[\tilde{\rho}]; \quad \hat{U} = \mathrm{diag}(1, e^{i \omega_L t}), \quad \hat{V} = \hat{U} \dv{\hat{U}}{t}
-        \end{gather*}
-      \end{block}
+%\begin{frame}{Quantum transitions are spectrally pure}
+  %\includegraphics[width=\textwidth, height=0.5cm]{figures/Helium_spectrum_visible}
+      %\begin{block}{Liouville equation (rotating frame)}
+        %\begin{gather*}
+          %\dv{\tilde{\rho}}{t} = -\frac{i}{\hbar} \commutator{\hat{U}\hat{\oper{H}}\hat{U}^\dagger - i\hbar \hat{V}}{\tilde{\rho}} - \hat{\oper{D}}\qty[\tilde{\rho}]; \quad \hat{U} = \mathrm{diag}(1, e^{i \omega_L t}), \quad \hat{V} = \hat{U} \dv{\hat{U}}{t}
+        %\end{gather*}
+      %\end{block}
 
-      \begin{gather*}
-        \tilde{\mathfrak{F}}\{\tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
-        \qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
-        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
-        \qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
-        \, \dd[3]{\vb{r'}}
-      \end{gather*}
-\end{frame}
+      %\begin{gather*}
+        %\tilde{\mathfrak{F}}\{\tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
+        %\qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
+        %\qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
+        %\qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
+        %\, \dd[3]{\vb{r'}}
+      %\end{gather*}
+%\end{frame}
 
-\begin{frame}{Solution methodology}
-  \begin{enumerate}
-    \item Predict $\hat{\mathbf{\rho}}(t + \Delta t)$
-      \begin{enumerate}
-        \item Map $\hat{\mathbf{\rho}}(t + \Delta t)$ to $\vb{P}(\vb{r}, t + \Delta t)$
-      \end{enumerate}
-    \item Calculate $\vb{E}(\vb{r}, t + \Delta t) = \mathfrak{F}\qty{\vb{P}(\vb{r}, t + \Delta t)}$
-      \begin{itemize}
-        \item retardation, interpolation, causality, derivatives
-      \end{itemize}
-    \item Use $\displaystyle \vb{E}(\vb{r}, t + \Delta t)$ to calculate $\displaystyle \partial_t \hat{\rho} = -\frac{i}{\hbar} \commutator{\hat{\mathcal{H}}\qty\big(\vb{E}(t + \Delta t))}{\hat{\rho}(t + \Delta t)} - \hat{\mathcal{D}}\qty[\hat{\rho}(t + \Delta t)]$
-    \item Use $\partial_t \hat{\rho}$ to correct $\hat{\rho}(t + \Delta t)$
-  \end{enumerate}
+%\begin{frame}{Solution methodology}
+  %\begin{enumerate}
+    %\item Predict $\hat{\mathbf{\rho}}(t + \Delta t)$
+      %\begin{enumerate}
+        %\item Map $\hat{\mathbf{\rho}}(t + \Delta t)$ to $\vb{P}(\vb{r}, t + \Delta t)$
+      %\end{enumerate}
+    %\item Calculate $\vb{E}(\vb{r}, t + \Delta t) = \mathfrak{F}\qty{\vb{P}(\vb{r}, t + \Delta t)}$
+      %\begin{itemize}
+        %\item retardation, interpolation, causality, derivatives
+      %\end{itemize}
+    %\item Use $\displaystyle \vb{E}(\vb{r}, t + \Delta t)$ to calculate $\displaystyle \partial_t \hat{\rho} = -\frac{i}{\hbar} \commutator{\hat{\mathcal{H}}\qty\big(\vb{E}(t + \Delta t))}{\hat{\rho}(t + \Delta t)} - \hat{\mathcal{D}}\qty[\hat{\rho}(t + \Delta t)]$
+    %\item Use $\partial_t \hat{\rho}$ to correct $\hat{\rho}(t + \Delta t)$
+  %\end{enumerate}
 
-  \begin{block}{Predictor/corrector}
-    \begin{equation*}
-    \hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = \alert{-1}}^{W - 1} \qty{\mathcal{P}_{w}^{(0)} / \mathcal{C}_{w}^{(0)}} \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}_{w}^{(1)}/ \mathcal{C}_{w}^{(1)}} \, \partial_t \hat{\rho}(t_{m - w}) \qquad
-    \end{equation*}
-  \end{block}
-\end{frame}
+  %\begin{block}{Predictor/corrector}
+    %\begin{equation*}
+    %\hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = \alert{-1}}^{W - 1} \qty{\mathcal{P}_{w}^{(0)} / \mathcal{C}_{w}^{(0)}} \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}_{w}^{(1)}/ \mathcal{C}_{w}^{(1)}} \, \partial_t \hat{\rho}(t_{m - w}) \qquad
+    %\end{equation*}
+  %\end{block}
+%\end{frame}
 
-\begin{frame}{Determination of the $\Lambda$s}
-  \begin{block}{Multipole expansion}
-    \begin{equation*}
-      \underbrace{\int_{} \psi_i(\vb{r}) (x - x_0)^{m_x} (y - y_0)^{m_y} (z - z_0)^{m_z}}_{Q_{i\vb{m}}} - \sum_{\vb{u} \in C_i} \Lambda_{i \vb{u}} \underbrace{\delta(\vb{r} - \vb{u}) \dd[3]{\vb{r}}}_{W_{\vb{m}\vb{u}}} = 0
-    \end{equation*}
-  \end{block}
-  \begin{columns}
-    \column{0.7\textwidth}
-      \begin{itemize}
-        \item Grid discretization sufficient to recover $k_0 = \omega_0/c$ spatial variation
-        \item Instantaneous ``propagation'' from source to grid
-        \item Recover $\grad \div \vb{J}$ from $\grad \div Q_{i\vb{m}}$
-      \end{itemize}
+%\begin{frame}{Determination of the $\Lambda$s}
+  %\begin{block}{Multipole expansion}
+    %\begin{equation*}
+      %\underbrace{\int_{} \psi_i(\vb{r}) (x - x_0)^{m_x} (y - y_0)^{m_y} (z - z_0)^{m_z}}_{Q_{i\vb{m}}} - \sum_{\vb{u} \in C_i} \Lambda_{i \vb{u}} \underbrace{\delta(\vb{r} - \vb{u}) \dd[3]{\vb{r}}}_{W_{\vb{m}\vb{u}}} = 0
+    %\end{equation*}
+  %\end{block}
+  %\begin{columns}
+    %\column{0.7\textwidth}
+      %\begin{itemize}
+        %\item Grid discretization sufficient to recover $k_0 = \omega_0/c$ spatial variation
+        %\item Instantaneous ``propagation'' from source to grid
+        %\item Recover $\grad \div \vb{J}$ from $\grad \div Q_{i\vb{m}}$
+      %\end{itemize}
 
-    \column{0.3\textwidth}
-      \begin{block}{Least-squares fit}
-        \begin{equation*}
-          \sum_{\vb{u} \in C_i} W_{\vb{m}\vb{u}} \Lambda_{i \vb{u}} = Q_{i\vb{m}}
-        \end{equation*}
-      \end{block}
-  \end{columns}
-\end{frame}
+    %\column{0.3\textwidth}
+      %\begin{block}{Least-squares fit}
+        %\begin{equation*}
+          %\sum_{\vb{u} \in C_i} W_{\vb{m}\vb{u}} \Lambda_{i \vb{u}} = Q_{i\vb{m}}
+        %\end{equation*}
+      %\end{block}
+  %\end{columns}
+%\end{frame}
 
 \end{document}
