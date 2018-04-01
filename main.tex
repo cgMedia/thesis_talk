@@ -52,36 +52,6 @@
 
 \section{Introduction}
 
-\begin{frame}{Modeling electromagnetic systems}
-  \begin{columns}
-    \column{0.5\textwidth}
-      \begin{itemize}
-        \item Maxwell's equations govern electromagnetic phenomena
-          \begin{itemize}
-            \item[] Radar, antennas, optics, telecommunications, \ldots
-          \end{itemize}
-        \item Analytic solutions unavailable for all but simplest geometries
-        \item Simulate!
-          \begin{itemize}
-            \item[] How to represent \emph{equations} and \emph{boundary conditions} discretely?
-            \item[] Algorithmic complexity?
-            \item[] Precision?
-          \end{itemize}
-      \end{itemize}
-    \column{0.5\textwidth}
-    \begin{center}
-      \includegraphics[width=0.7\textwidth]{figures/aircraft}
-      \vspace{0.3cm}
-      \begin{block}{Maxwell's equations}
-        \begin{gather*}
-          \div \vb{E} = \frac{\rho}{\epsilon_0} \qquad \curl \vb{E} = -\pdv{\vb{B}}{t} \\
-          \curl \vb{B} = \mu_0\qty(\vb{J} + \epsilon_0 \pdv{\vb{E}}{t}) \qquad \div \vb{B} = 0
-        \end{gather*}
-      \end{block}
-    \end{center}
-  \end{columns}
-\end{frame}
-
 \begin{frame}{Active media systems}
   \begin{itemize}
     \item Motivated by fundamental physics, need for new devices/behaviors in many fields
@@ -100,9 +70,40 @@
     \end{column}
     \begin{column}{0.5\textwidth}
       \begin{block}{}
-        What challenges arise in simulating (large collections of) active quantum dot systems?
+        How do we meet the challenge of simulating large collections of these active systems?
       \end{block}
     \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Modeling electromagnetic systems}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \begin{itemize}
+        \item Maxwell's equations govern electromagnetic phenomena
+          \begin{itemize}
+            \item[] Radar, antennas, optics, telecommunications, \ldots
+          \end{itemize}
+        \item Analytic solutions unavailable for all but simplest geometries
+        \item Modern tech pushing approximation limit
+        \item Simulate!
+          \begin{itemize}
+            \item[] How to represent \emph{equations} and \emph{boundary conditions} discretely?
+            \item[] Algorithmic complexity?
+            \item[] Precision?
+          \end{itemize}
+      \end{itemize}
+    \column{0.5\textwidth}
+    \begin{center}
+      \includegraphics[width=0.7\textwidth]{figures/aircraft}
+      \vspace{0.3cm}
+      \begin{block}{Maxwell's equations}
+        \begin{gather*}
+          \div \vb{E} = \frac{\rho}{\epsilon_0} \qquad \curl \vb{E} = -\pdv{\vb{B}}{t} \\
+          \curl \vb{B} = \mu_0\qty(\vb{J} + \epsilon_0 \pdv{\vb{E}}{t}) \qquad \div \vb{B} = 0
+        \end{gather*}
+      \end{block}
+    \end{center}
   \end{columns}
 \end{frame}
 
@@ -189,7 +190,7 @@
   \input{figures/pseudospin_periodogram}
 \end{frame}
 
-\begin{frame}{Downshift to exploit (lack of) bandwidth}
+\begin{frame}{Rotating wave approximation: exploiting (lack of) bandwidth}
   \begin{columns}
     \begin{column}{0.6\textwidth}
       \begin{equation*}
@@ -304,80 +305,111 @@
 \end{frame}
 
 \begin{frame}{Marching-on-in-Time}
-  Define $\mathcal{Z}^\qty(m)_{\ell \ell'} = \langle \vb{s}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{s}_{\ell '}(\vb{r}) T(m \, \Delta t)} \rangle$
-
+  Given $\tilde{\vb{P}}$, calculate $\tilde{\vb{E}}$:
   \begin{equation*}
     \mqty(
-      \mathcal{Z}^{(0)} \\
-      \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)} \\
-      \mathcal{Z}^{(2)} & \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)} \\
-      & \mathcal{Z}^{(2)} & \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)} \\
-      & & \mathcal{Z}^{(2)} & \mathcal{Z}^{(1)} & \mathcal{Z}^{(0)}
+      \tilde{\mathcal{Z}}^{(0)} \\
+      \tilde{\mathcal{Z}}^{(1)}   & \tilde{\mathcal{Z}}^{(0)} \\
+      \tilde{\mathcal{Z}}^{(2)}   & \tilde{\mathcal{Z}}^{(1)}    & \tilde{\mathcal{Z}}^{(0)} \\
+      \vdots                      & \tilde{\mathcal{Z}}^{(2)}    & \tilde{\mathcal{Z}}^{(1)}    & \tilde{\mathcal{Z}}^{(0)} \\
+      \tilde{\mathcal{Z}}^{(N_d)} & \ddots                       & \tilde{\mathcal{Z}}^{(2)}    & \tilde{\mathcal{Z}}^{(1)}    & \tilde{\mathcal{Z}}^{(0)} \\
+                                  & \tilde{\mathcal{Z}}^{(N_d)}  & \ddots                       & \tilde{\mathcal{Z}}^{(2)}    & \tilde{\mathcal{Z}}^{(1)}    & \tilde{\mathcal{Z}}^{(0)} \\
+                                  &                              & \tilde{\mathcal{Z}}^{(N_d)}  & \cdots                       & \tilde{\mathcal{Z}}^{(2)}    & \tilde{\mathcal{Z}}^{(1)}    & \tilde{\mathcal{Z}}^{(0)}
   ) \cdot
-  \mqty(\mathcal{A}^{(0)} \\ \mathcal{A}^{(1)} \\ \mathcal{A}^{(2)} \\ \mathcal{A}^{(3)} \\ \mathcal{A}^{(4)}) \rightarrow
-    \mqty(\mathcal{F}^{(0)} \\ \mathcal{F}^{(1)} \\ \mathcal{F}^{(2)} \\ \mathcal{F}^{(3)} \\ \mathcal{F}^{(4)})
+  \mqty(\tilde{\mathcal{A}}^{(0)} \\ \tilde{\mathcal{A}}^{(1)} \\ \tilde{\mathcal{A}}^{(2)} \\ \tilde{\mathcal{A}}^{(3)} \\ \tilde{\mathcal{A}}^{(4)} \\ \tilde{\mathcal{A}}^{(5)} \\ \vdots \\ \tilde{\mathcal{A}}^{(N_t)}) \rightarrow
+  \mqty(\tilde{\mathcal{E}}^{(0)} \\ \tilde{\mathcal{E}}^{(1)} \\ \tilde{\mathcal{E}}^{(2)} \\ \tilde{\mathcal{E}}^{(3)} \\ \tilde{\mathcal{E}}^{(4)} \\ \tilde{\mathcal{E}}^{(5)} \\ \vdots \\ \tilde{\mathcal{E}}^{(N_t)})
   \end{equation*}
 
+  \begin{equation*}
+    \tilde{\mathcal{Z}}^\qty(m)_{\ell \ell'} = \big\langle \vb{s}_\ell(\vb{r}), \tilde{\mathfrak{F}}\qty{\vb{s}_{\ell'}(\vb{r}) T(m \, \Delta t)} \big\rangle  \qquad
+    \tilde{\mathcal{E}}^\qty(m)_{\ell} = \big\langle \vb{s}_\ell(\vb{r}), \tilde{\vb{E}}(\vb{r}, m \, \Delta t) \big\rangle 
+  \end{equation*}
 \end{frame}
 
+\begin{frame}{Discrete dot model: two steps}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Quantum dynamics}
+        Numerically integrate
+        \begin{equation*}
+          \pdv{\tilde{\rho}}{t} = \commutator{\tilde{\mathcal{H}}\qty\big(\tilde{\vb{E}}(t))}{\tilde{\rho}} - \hat{\mathcal{D}}\qty[\tilde{\rho}]
+        \end{equation*}
 
-%\begin{frame}{Integral equation discretization}
-  %\begin{columns}
-    %\column{0.6\textwidth}
-    %\begin{block}{Convolutional propagation}
-      %\begin{equation*}
-        %\vb{E}(\vb{r}, t) = \vb{E}_\text{inc}(\vb{r}, t) + \mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t)
-      %\end{equation*}
-      %\hfill \tiny{(applies to lots of physical potentials)}
-    %\end{block}
+        Features:
+        \begin{itemize}
+          \item Large timesteps
+          \item Electromagnetic sources, $\tilde{\vb{P}}$, derived from $\tilde{\rho}$
+          \item Feeds MoT system
+        \end{itemize}
+      \end{block}
+    \end{column}
 
-    %\begin{block}{Discretized unknown quantity}
-      %\begin{equation*}
-        %\vb{J}(\vb{r}, t) \approx \sum_{\ell=1}^{N_t} \sum_{m=1}^{N_s} a_{\ell m} \, \vb{s}_\ell(\vb{r}) T_m(t)
-      %\end{equation*}
-      %\begin{itemize}
-        %\item Number of unknowns: $N_t, N_s \propto \omega_\text{max}, \omega_\text{max}^2$
-        %\item Cost to evaluate $\mathfrak{g}(\vb{r}, t) * \vb{J}(\vb{r}, t) \sim \mathcal{O}(N_t N_s^2)$
-      %\end{itemize}
-    %\end{block}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Electromagnetics}
+        Evaluate 
+        \begin{equation*}
+          \tilde{\mathcal{Z}} \cdot  \tilde{\mathcal{A}} \to \tilde{\mathcal{E}}
+        \end{equation*}
+        MoT matrix system
 
-    %\column{0.4\textwidth}
-      %\begin{center}
-        %\input{figures/dense_communication}
-        %{\small ``Everyone talking to everyone''}
-      %\end{center}
-  %\end{columns}
-%\end{frame}
+        Features:
+        \begin{itemize}
+          \item Gives $\tilde{\vb{E}}$ at each quantum dot
+          \item Feeds ODE system
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
 
-%\begin{frame}{$\vb{E}$-field propagator}
-  %\begin{columns}
-    %\begin{column}{0.5\textwidth}
-      %\begin{block}{Operator form}
-        %\begin{equation*}
-          %\vb{E}(\vb{r}, t) = \sint \qty(\partial_t^2 - c^2 \grad \grad \boldsymbol{\cdot})\frac{\vb{P}(\vb{r}', t_R)}{\abs{\vb{r} - \vb{r}'}} \dd[3]{\vb{r}'}
-        %\end{equation*}
-      %\end{block}
-      %\begin{block}{Dyadic form}
-        %\begin{equation*}
-          %\begin{gathered}
-            %\vb{E}(\vb{r}, t) = \sint
-              %\left(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \frac{\partial_t^2 \vb{P}(\vb{r}', t_R)}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
-              %\left(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} \right) \cdot \qty(
-                %\frac{\partial_t   \vb{P}(\vb{r}', t_R)}{c \abs{\vb{r}-\vb{r}'}^2} +
-                %\frac{             \vb{P}(\vb{r}', t_R)}{  \abs{\vb{r}-\vb{r}'}^3}
-              %) \dd[3]{\vb{r}'}
-          %\end{gathered}
-        %\end{equation*}
-      %\end{block}
-    %\end{column}
-    %\begin{column}{0.5\textwidth}
-      %\begin{center}
-        %\input{figures/time_basis_function}
-        %\input{figures/time_circles}
-      %\end{center}
-    %\end{column}
-  %\end{columns}
-%\end{frame}
+\begin{frame}{Delay-driven solvers}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      ``Standard'' integration unavialable
+
+      Continuously,
+      \begin{align*}
+        \pdv{\tilde{\rho}_1}{t} &= f_{12}\qty\big(\tilde{\rho}_2(t - \Delta r/c)) \\
+        \pdv{\tilde{\rho}_2}{t} &= f_{21}\qty\big(\tilde{\rho}_1(t - \Delta r/c))
+      \end{align*}
+
+      Discretely,
+      \begin{align*}
+        \pdv{\tilde{\rho}_1}{t} &= f_{12}\qty\big(\tilde{\rho}_2(t)) \\
+        \pdv{\tilde{\rho}_2}{t} &= f_{21}\qty\big(\tilde{\rho}_1(t))
+      \end{align*}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{center}
+        \begin{tikzpicture}
+          \pgfplotsset{cycle list/Set1-4}
+          \begin{axis}[
+              minor x tick num={4},
+              minor y tick num={4},
+              legend style={fill=none},
+              width=\textwidth,
+              height=0.5\textheight,
+              cycle multi list = {Set1-4},
+              xtick={0, 1, 2, 3},
+              xticklabels={-3, -2, -1, 0}
+          ]
+            \addplot+[very thick, domain=0:3, samples=100] {x * (1/3 + x * (-1/2 + x/6))};
+            \pgfplotsset{cycle list shift=-1}
+
+            \addplot+[very thick, domain=0:3, samples=100, opacity=0.50] {x * (-3/2 + x * (2 - x/2))};
+            \pgfplotsset{cycle list shift=-2}
+
+            \addplot+[very thick, domain=0:3, samples=100, opacity=0.25] {x * (3 + x * (-5/2 + x/2))};
+            \pgfplotsset{cycle list shift=-3}
+
+            \addplot+[very thick, domain=0:3, samples=100, opacity=0.125] {1 + x * (-11/6 + x * (1 - x/6))};
+          \end{axis}
+        \end{tikzpicture}
+        \input{figures/time_circles}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 %\begin{frame}{Predictor/corrector to solve underlying ODE}
   %\vspace{0.5cm}
