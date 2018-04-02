@@ -1329,11 +1329,11 @@
       enlargelimits = 0.10,
       height=\textheight
     ]
-    \addplot+[no marks, smooth, ultra thin, plot2] table [x index = {0}, y index = {1}]{frames.dat};
-    \addlegendentry{Direct};
+    \addplot+[no marks, smooth, very thick, plot2] table [x index = {0}, y index = {1}]{frames.dat};
+    \addlegendentry{Fixed};
 
-    \addplot+[no marks, smooth, ultra thin, plot1] table [x index = {0}, y index = {2}]{frames.dat};
-    \addlegendentry{Downshifted};
+    \addplot+[no marks, smooth, very thick, plot1] table [x index = {0}, y index = {2}]{frames.dat};
+    \addlegendentry{Rotating};
 
     %\addplot+[no marks, smooth, ultra thin, green] table {no_inter.dat};
     %\addlegendentry{No interactions};
