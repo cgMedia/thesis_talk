@@ -27,22 +27,6 @@
 \usepgfplotslibrary{colorbrewer}
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 
-\usetikzlibrary{decorations.markings}
-\tikzset{test/.style={
-    postaction={
-        decorate,
-        decoration={
-            markings,
-            mark=at position \pgfdecoratedpathlength-0.5pt with {\arrow[blue,line width=#1] {>}; },
-            mark=between positions 0 and \pgfdecoratedpathlength-8pt step 0.5pt with {
-                \pgfmathsetmacro\myval{multiply(divide(
-                    \pgfkeysvalueof{/pgf/decoration/mark info/distance from start}, \pgfdecoratedpathlength),100)};
-                \pgfsetfillcolor{blue!\myval!red};
-                \pgfpathcircle{\pgfpointorigin}{#1};
-                \pgfusepath{fill};}
-}}}}
-
-
 \usefonttheme{serif}
 
 \title{The QuEST for active media models}
@@ -50,6 +34,8 @@
 \date{April 2, 2018}
 \author{Connor Glosser, Ph.D Candidate}
 \institute{Michigan State University, Physics \& Electrical Engineering \\ Committee members: Drs.\ C.\ Piermarocchi, B.\ Shanker, P.\ M.\ Duxbury, S.\ Tessmer, J.\ Albrecht, J.\ Luginsland}
+
+\titlegraphic{\flushright\includegraphics[scale=0.5]{figures/nsf.png}}
 
 \newcommand{\oper}[1]{\mathcal{#1}}
 \newcommand{\rwoper}[1]{\tilde{\mathcal{#1}}}
@@ -73,11 +59,11 @@
   \begin{itemize}
     \item Motivated by fundamental physics, need for new devices/behaviors in many fields
       \begin{itemize}
-        \item[] Applications: random lasing, biomedical sensing, quantum information, etc.
-        \item[] Constitutive relations not fully described within Maxwell's equations; $\vb{P} \not = \chi \vb{E}$
+        \item[] Applications: random lasing, biomedical sensing/manipulation, quantum information, etc.
       \end{itemize}
+    \item Systems not fully described within scattering framework
     \item Broadly, ``dynamical systems linked by radiative interactions''
-    \item Specifically EM-field-mediated interactions between quantum dots
+    \item Two example systems: ultrasound-induced particle motion, electromagnetics within quantum dot sytsems
   \end{itemize}
   \begin{columns}
     \begin{column}{0.5\textwidth}
@@ -153,10 +139,10 @@
     \end{itemize}
   \end{block}
 
-  \begin{block}{Microscopic Maxwell-Bloch evolution (discrete dot model)}
+  \begin{block}{\textcolor{RoyalBlue}{Microscopic Maxwell-Bloch evolution (discrete dot model)}}
     \begin{itemize}
       \item[\textcolor{ForestGreen}{+}] Decomposes solution into radiation + evolution, preserves fine details
-      \item[\textcolor{BrickRed}{-}] Numerically intricate, envelope solution(?), polynomial scaling
+      \item[\textcolor{BrickRed}{-}] Numerically intricate, polynomial(\ldots?) scaling
     \end{itemize}
   \end{block}
 \end{frame}
@@ -715,7 +701,9 @@
 \end{frame}
 
 \begin{frame}{Nearfield correction}
-  \input{figures/nf_pair}
+  \begin{center}
+    \input{figures/nf_pair}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Steps}
