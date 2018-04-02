@@ -27,6 +27,22 @@
 \usepgfplotslibrary{colorbrewer}
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
 
+\usetikzlibrary{decorations.markings}
+\tikzset{test/.style={
+    postaction={
+        decorate,
+        decoration={
+            markings,
+            mark=at position \pgfdecoratedpathlength-0.5pt with {\arrow[blue,line width=#1] {>}; },
+            mark=between positions 0 and \pgfdecoratedpathlength-8pt step 0.5pt with {
+                \pgfmathsetmacro\myval{multiply(divide(
+                    \pgfkeysvalueof{/pgf/decoration/mark info/distance from start}, \pgfdecoratedpathlength),100)};
+                \pgfsetfillcolor{blue!\myval!red};
+                \pgfpathcircle{\pgfpointorigin}{#1};
+                \pgfusepath{fill};}
+}}}}
+
+
 \usefonttheme{serif}
 
 \title{The QuEST for active media models}
@@ -674,6 +690,34 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{Expansion matrices}
+  \begin{block}{Multipole expansion}
+    \begin{equation*}
+      \underbrace{\int_{} \psi_i(\vb{r}) (x - x_0)^{m_x} (y - y_0)^{m_y} (z - z_0)^{m_z}}_{Q_{i\vb{m}}} - \sum_{\vb{u} \in C_i} \Lambda_{i \vb{u}} \underbrace{\delta(\vb{r} - \vb{u}) \dd[3]{\vb{r}}}_{W_{\vb{m}\vb{u}}} = 0
+    \end{equation*}
+    \hfill $\psi_\ell \in \qty{\vb{s}_\ell(\vb{r}) \cdot \hat{\vb{x}}, \vb{s}_\ell(\vb{r}) \cdot \hat{\vb{y}}, \vb{s}_\ell(\vb{r}) \cdot \hat{\vb{z}}}$
+  \end{block}
+  \begin{columns}
+    \column{0.7\textwidth}
+      \begin{itemize}
+        \item Grid discretization sufficient to recover $k_0 = \omega_0/c$ spatial variation
+        \item Instantaneous ``propagation'' from source to grid
+        \item Recover $\grad \div \vb{J}$ from $\grad \div Q_{i\vb{m}}$---requires large expansion
+      \end{itemize}
+
+    \column{0.3\textwidth}
+      \begin{block}{Least-squares fit}
+        \begin{equation*}
+          \sum_{\vb{u} \in C_i} W_{\vb{m}\vb{u}} \Lambda_{i \vb{u}} = Q_{i\vb{m}}
+        \end{equation*}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Nearfield correction}
+  \input{figures/nf_pair}
+\end{frame}
+
 \begin{frame}{Steps}
   \begin{center}
     \begin{tikzpicture}[>=latex]
@@ -696,51 +740,51 @@
       \node[anchor=west] at (10.5, -4) {Recover};
       \node[anchor=west] at (10.5, -6) {Correct};
 
-      \draw[->, red, very thick] (0.5, 0.3) -- (0, 0);
-      \draw[->, red] (0.5, 0.3) -- (2, 0);
+      \draw[->, very thick] (0.5, 0.3) -- (0, 0);
+      \draw[->] (0.5, 0.3) -- (2, 0);
 
-      \draw[->, red, thick] (3, -0.3) -- (2, 0);
-      \draw[->, red, thick] (3, -0.3) -- (4, 0);
+      \draw[->, thick] (3, -0.3) -- (2, 0);
+      \draw[->, thick] (3, -0.3) -- (4, 0);
       
-      \draw[->, red, very thick] (6.5, 0.3) -- (6, 0);
-      \draw[->, red] (6.5, 0.3) -- (8, 0);
-      \draw[->, red] (7.2, -0.3) -- (6, 0);
-      \draw[->, red, very thick] (7.2, -0.3) -- (8, 0);
+      \draw[->, very thick] (6.5, 0.3) -- (6, 0);
+      \draw[->] (6.5, 0.3) -- (8, 0);
+      \draw[->] (7.2, -0.3) -- (6, 0);
+      \draw[->, very thick] (7.2, -0.3) -- (8, 0);
 
-      \draw[->, red, very thick] (10, 0.5) -- (10, 0);
+      \draw[->, very thick] (10, 0.5) -- (10, 0);
 
       %%=================================================================
 
       \draw (0, -2) -- (10, -2);
       \foreach \x in {2,4,...,10} {
-        \draw[<->, green!50!black] (0,-2) to[out=15, in=165] node[midway, above] {} (\x,-2);
+        \draw[<->] (0,-2) to[out=15, in=165] node[midway, above] {} (\x,-2);
       }
       
       %%=================================================================
 
       \draw[<-, blue, very thick] (0.5, -3.7) -- (0, -4);
-      \draw[<-, yellow] (0.5, -3.7) -- (2, -4);
+      \draw[<-, orange] (0.5, -3.7) -- (2, -4);
 
-      \draw[<-, magenta, thick] (3, -4.3) -- (2, -4);
-      \draw[<-, red, thick] (3, -4.3) -- (4, -4);
+      \draw[<-, blue, thick] (3, -4.3) -- (2, -4);
+      \draw[<-, orange, thick] (3, -4.3) -- (4, -4);
       
-      \draw[<-, green, very thick] (6.5, -3.7) -- (6, -4);
-      \draw[<-, purple] (6.5, -3.7) -- (8, -4);
-      \draw[<-, blue] (7.2, -4.3) -- (6, -4);
-      \draw[<-, green, very thick] (7.2, -4.3) -- (8, -4);
+      \draw[<-, blue, very thick] (6.5, -3.7) -- (6, -4);
+      \draw[<-, orange] (6.5, -3.7) -- (8, -4);
+      \draw[<-, orange] (7.2, -4.3) -- (6, -4);
+      \draw[<-, blue, very thick] (7.2, -4.3) -- (8, -4);
 
-      \draw[<-, yellow, very thick] (10, -3.5) -- (10, -4);
+      \draw[<-, orange, very thick] (10, -3.5) -- (10, -4);
 
       %%=================================================================
 
-      \draw[<->, red, very thick] (0.5, -5.7) -- (0, -6);
-      \draw[<->, red] (0,-6) to[out=15, in=165] node[midway, above] {} (2,-6);
-      \draw[<->, red, thick] (3, -6.3) -- (2, -6);
+      \draw[<->, very thick] (0.5, -5.7) -- (0, -6);
+      \draw[<->] (0,-6) to[out=15, in=165] node[midway, above] {} (2,-6);
+      \draw[<->, thick] (3, -6.3) -- (2, -6);
       \draw[<->, green!50!black, thick] (0.5, -5.7) to[out=-40, in=200] (3, -6.3);
 
-      \draw[<->, red, very thick] (6.5, -5.7) -- (6, -6);
-      \draw[<->, red] (6,-6) to[out=15, in=165] node[midway, above] {} (8,-6);
-      \draw[<->, red, thick] (7.2, -6.3) -- (8, -6);
+      \draw[<->, very thick] (6.5, -5.7) -- (6, -6);
+      \draw[<->] (6,-6) to[out=15, in=165] node[midway, above] {} (8,-6);
+      \draw[<->, thick] (7.2, -6.3) -- (8, -6);
       \draw[<->, green!50!black, thick] (6.5, -5.7) to[out=-80, in=170] (7.2, -6.3);
 
     \end{tikzpicture}
@@ -754,6 +798,10 @@
       \mathcal{O}\qty(\frac{N_t N_s \log N_s}{\alpha})
     \end{equation*}
   \endgroup
+\end{frame}
+
+\begin{frame}{Spatial error analysis}
+  \input{figures/grid_spacing_error}
 \end{frame}
 
 \begin{frame}{Time measuremnets: retarded potential calculation}
@@ -864,6 +912,8 @@
   \end{center}
 \end{frame}
 
+\subsection{Close}
+
 \begin{frame}{Other things I've worked on}
   \begin{itemize}
     \item[] Particle motion
@@ -899,207 +949,22 @@
 
 \appendix
 
-%\begin{frame}{Units}
-  %\begin{table}
-    %\begin{tabular}{lll}
-      %Quantity                 & Symbol            & Value                        \\ \hline \hline
-      %Speed of light           & $c$               & \SI{300}{\micro\meter \per \pico\second} \\
-      %Transition frequency     & $\omega_0$        & $\SI{1500}{\milli\eV}/\hbar$ \\
-      %Transition dipole moment & $\vb{d}$          & \SI{10}{\elementarycharge\bohr} (uniform) \\
-      %Relaxation times         & $T_{1}, T_{2}$    & \SIlist{10;20}{\pico\second} \\
-      %Laser frequency          & $\omega_L$        & $\SI{1500}{\milli\eV}/\hbar$ \\
-      %Laser wavevector         & $\vb{k}_L$        & $\omega_L/c$ ($\vb{k}_L \cdot \vb{d} = 0$) \\
-      %Pulse width              & $\sigma/\omega_L$ & \SI{1}{\pico\second} \\ \hline
-      %Integrator window        & $W$               & 20 \\
-      %Corrector iterations     & N/A               & max 10 (usually 4-6) \\
-      %Timestep                 & $\Delta t$        & \SI{0.5e-2}{\pico\second}
-    %\end{tabular}
-  %\end{table}
-%\end{frame}
-
-%\begin{frame}{Lightning review of (linear) Green's functions}
-  %\only<1>{
-    %To solve the following differential equation for $a(x)$ \ldots
-    %\begin{equation*}
-      %\hat{\mathcal{L}}\qty[a(x)] = b(x)
-    %\end{equation*}
-    %\ldots it's far easier to \emph{first} find the Green's function,
-    %\begin{equation*}
-      %\hat{\mathcal{L}}\qty[g(x, x')] = \delta(x - x').
-    %\end{equation*}
-    %Then,
-    %\begin{align*}
-      %\hat{\mathcal{L}}\qty[a(x)] &= \int_{} \delta(x - x') b(x') \dd{x'} \\
-                                  %&= \int_{} \hat{\mathcal{L}}\qty[g(x, x')] b(x') \dd{x'} \\
-                     %\Aboxed{a(x) &= \int_{} g(x, x') b(x') \dd{x'}}
-    %\end{align*}
-  %}
-  %\only<2>{
-    %\begin{block}{Laplace equation}
-      %\begin{equation*}
-        %\laplacian g(\vb{r}, \vb{r}') = -4 \pi \delta(\vb{r} - \vb{r}') \implies g(\vb{r}, \vb{r}') = \frac{1}{\abs{\vb{r} - \vb{r}'}}
-      %\end{equation*}
-    %\end{block}
-
-    %\begin{block}{Wave equation}
-      %\begin{equation*}
-        %\qty(\laplacian - \frac{1}{c^2}\pdv[2]{t}) g^{(4)} = -4 \pi \delta^{(4)} \implies g(\vb{r}, t; \vb{r}', t') = \frac{1}{\abs{\vb{r} - \vb{r}'}} \delta\qty(t - t' - \frac{\abs{\vb{r} - \vb{r}'}}{c})
-      %\end{equation*}
-    %\end{block}
-  %}
-%\end{frame}
-
-%\begin{frame}{An electric-field wave equation}
-  %\vspace{0.7cm}
-  %\begin{columns}
-    %\column{0.6\textwidth}
-        %\begin{equation*}
-          %\laplacian{\pdv{\vb{E}}{t}} - \frac{1}{c^2} \pdv[3]{\vb{E}}{t} = 4 \pi k_2 \qty(\pdv[2]{\vb{J}}{t} - c^2 \grad \div \vb{J})
-        %\end{equation*}
-        %\begin{itemize}
-          %\item Incorporates short and long-range effects
-          %\item Automatic radiation boundary conditions
-          %\item Point-to-point communication; no numerical dispersion
-          %\item \alert{Four} derivatives, two spatial and two temporal
-        %\end{itemize}
-
-    %\column{0.4\textwidth}
-      %\centering
-      %\includegraphics[width=0.5\textwidth]{figures/dipoles_2.png}
-  %\end{columns}
-
-  %\begin{equation*}
-    %\mathfrak{F}\qty{\vb{P}(\vb{r}, t)} = -k_2 \int_{}
-        %\left(\overline{\mathbf{I}} -  \hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \frac{\ddot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|} +
-        %\left(\overline{\mathbf{I}} - 3\hat{\mathbf{r}}\hat{\mathbf{r}}\right) \cdot \qty(
-          %\frac{c\dot{\mathbf{P}}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^2} +
-          %\frac{c^2   \mathbf{P}(\vb{r}, t_R)}{\left|\mathbf{r}-\mathbf{r}'\right|^3}
-        %)
-      %\, \mathrm{d}^3 \mathbf{r'}
-  %\end{equation*}
-%\end{frame}
-
-%\begin{frame}{Classical electrodynamics: procedureally solving a matrix equation}
-  %\begin{block}{Marching-on-in-Time}
-    %\begin{equation*}
-    %\oper{L}^{(m)} + \sum_{k = 0}^m \oper{Z}^{(k)} \oper{A}^{(m-k)} = \oper{F}^{(m)}; \quad \oper{A}^{(m)}_n = \Trace\!\qty[\hat{\rho}_n(m \, \Delta t) \cdot \hat{\vb{d}}_n]
-    %\end{equation*}
-  %\end{block}
-
-  %\vspace{-0.5cm}
-  %\begin{equation*}
-    %\underbrace{\mqty(\oper{L}^{(0)} \\ \oper{L}^{(1)} \\ \oper{L}^{(2)} \\ \oper{L}^{(3)} \\ \oper{L}^{(4)})}_\text{Laser} +
-    %\underbrace{\mqty(
-      %\oper{Z}^{(0)} \\
-      %\oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      %\oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      %\oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-                                %& \oper{Z}^{(3)} & \oper{Z}^{(2)} & \oper{Z}^{(1)} & \oper{Z}^{(0)} \\
-      %)}_\text{Interaction weights (precalculated)} \cdot
-    %\underbrace{\mqty(\oper{A}^{(0)} \\ \oper{A}^{(1)} \\ \oper{A}^{(2)} \\ \oper{A}^{(3)} \\ \oper{A}^{(4)})}_\text{Sources} =
-    %\underbrace{\mqty(\oper{F}^{(0)} \\ \oper{F}^{(1)} \\ \oper{F}^{(2)} \\ \oper{F}^{(3)} \\ \oper{F}^{(4)})}_\text{Total field}
-  %\end{equation*}
-
-  %\begin{equation*}
-    %\oper{L}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E}_L (\vb{r}, m\, \Delta t)\rangle \quad
-    %\oper{Z}^{(k)}_{\ell\ell'} = \langle\vb{S}_\ell(\vb{r}), \mathfrak{F}\qty{\vb{S}_{\ell'}(\vb{r})T(k \, \Delta t)}\rangle \quad
-    %\oper{F}^{(m)}_\ell = \langle\vb{S}_\ell(\vb{r}), \vb{E} (\vb{r}, m\, \Delta t)\rangle
-  %\end{equation*}
-%\end{frame}
-
-%\begin{frame}{Simulated quantum dot = two-level quantum system}
-  %\begin{columns}
-    %\column{0.5\textwidth}
-      %\begin{block}{Liouville equation}
-        %\begin{equation*}
-          %\dv{\hat{\rho}}{t} = \frac{-i}{\hbar} \commutator{\hat{\mathcal{H}}(t)}{\hat{\rho}} - \hat{\mathcal{D}}\qty[\hat{\rho}]
-        %\end{equation*}
-        %\hfill {\tiny(mixed-state analogue of Schr\"odinger equation)}
-      %\end{block}
-
-      %\begin{itemize}
-        %\item Density matrix representation
-        %\item $\hat{\mathcal{D}}[\hat{\rho}]$ (phenomenologically) incorporates decay and decoherence
-        %\item Rabi oscillations
-        %\item One wavefunction/dot
-          %\begin{itemize}
-            %\item No universal wavefunction
-            %\item \emph{Classical} electromagnetic propagation
-          %\end{itemize}
-      %\end{itemize}
-
-    %\column{0.5\textwidth}
-      %\begin{center}
-        %\input{figures/example_evolution}
-      %\end{center}
-
-      %\vspace{-1.0cm}
-      %\begin{align*}
-        %\hat{\mathcal{H}}(t) &\equiv \mqty(0 & \vb{d} \cdot \vb{E}(t) \\ \vb{d}^* \cdot \vb{E}^*(t) & \hbar \omega_0) \\
-        %\hat{\mathcal{D}}[\hat{\rho}] &\equiv \mqty( (\rho_{00} - 1)/T_1 & \rho_{01}/T_2 \\ \rho_{10}/T_2 & \rho_{11}/T_1)
-      %\end{align*}
-  %\end{columns}
-%\end{frame}
-
-%\begin{frame}{Quantum transitions are spectrally pure}
-  %\includegraphics[width=\textwidth, height=0.5cm]{figures/Helium_spectrum_visible}
-      %\begin{block}{Liouville equation (rotating frame)}
-        %\begin{gather*}
-          %\dv{\tilde{\rho}}{t} = -\frac{i}{\hbar} \commutator{\hat{U}\hat{\oper{H}}\hat{U}^\dagger - i\hbar \hat{V}}{\tilde{\rho}} - \hat{\oper{D}}\qty[\tilde{\rho}]; \quad \hat{U} = \mathrm{diag}(1, e^{i \omega_L t}), \quad \hat{V} = \hat{U} \dv{\hat{U}}{t}
-        %\end{gather*}
-      %\end{block}
-
-      %\begin{gather*}
-        %\tilde{\mathfrak{F}}\{\tilde{\vb{P}}(\vb{r}, t) \} \equiv -k_2 \int_{}
-        %\qty(\mathrm{I} -  \outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t^2 \tilde{\vb{P}}(\vb{r}', t_R) + 2 i \omega_L \partial_t \tilde{\vb{P}}(\vb{r}', t_R) - \omega_L^2 \tilde{\vb{P}}(\vb{r}', t_R)) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c^2 \abs{\vb{r}-\vb{r}'}} + \\
-        %\qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{\qty(\partial_t \tilde{\vb{P}}(\vb{r}', t_R) + i \omega_L \tilde{\vb{P}}(\vb{r}', t_R))\alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{c \abs{\vb{r}-\vb{r}'}^2} +
-        %\qty(\mathrm{I} - 3\outerprod{\bar{\vb{r}}}{\bar{\vb{r}}} ) \cdot \frac{                \tilde{\vb{P}}(\vb{r}', t_R) \alert{e^{-i \omega_L \abs{\vb{r} - \vb{r}'}/c}}}{\abs{\vb{r}-\vb{r}'}^3}
-        %\, \dd[3]{\vb{r'}}
-      %\end{gather*}
-%\end{frame}
-
-%\begin{frame}{Solution methodology}
-  %\begin{enumerate}
-    %\item Predict $\hat{\mathbf{\rho}}(t + \Delta t)$
-      %\begin{enumerate}
-        %\item Map $\hat{\mathbf{\rho}}(t + \Delta t)$ to $\vb{P}(\vb{r}, t + \Delta t)$
-      %\end{enumerate}
-    %\item Calculate $\vb{E}(\vb{r}, t + \Delta t) = \mathfrak{F}\qty{\vb{P}(\vb{r}, t + \Delta t)}$
-      %\begin{itemize}
-        %\item retardation, interpolation, causality, derivatives
-      %\end{itemize}
-    %\item Use $\displaystyle \vb{E}(\vb{r}, t + \Delta t)$ to calculate $\displaystyle \partial_t \hat{\rho} = -\frac{i}{\hbar} \commutator{\hat{\mathcal{H}}\qty\big(\vb{E}(t + \Delta t))}{\hat{\rho}(t + \Delta t)} - \hat{\mathcal{D}}\qty[\hat{\rho}(t + \Delta t)]$
-    %\item Use $\partial_t \hat{\rho}$ to correct $\hat{\rho}(t + \Delta t)$
-  %\end{enumerate}
-
-  %\begin{block}{Predictor/corrector}
-    %\begin{equation*}
-    %\hat{\rho}(t_{m + 1}) \leftarrow \sum_{w = \alert{-1}}^{W - 1} \qty{\mathcal{P}_{w}^{(0)} / \mathcal{C}_{w}^{(0)}} \hat{\rho}(t_{m-w}) + \qty{\mathcal{P}_{w}^{(1)}/ \mathcal{C}_{w}^{(1)}} \, \partial_t \hat{\rho}(t_{m - w}) \qquad
-    %\end{equation*}
-  %\end{block}
-%\end{frame}
-
-%\begin{frame}{Determination of the $\Lambda$s}
-  %\begin{block}{Multipole expansion}
-    %\begin{equation*}
-      %\underbrace{\int_{} \psi_i(\vb{r}) (x - x_0)^{m_x} (y - y_0)^{m_y} (z - z_0)^{m_z}}_{Q_{i\vb{m}}} - \sum_{\vb{u} \in C_i} \Lambda_{i \vb{u}} \underbrace{\delta(\vb{r} - \vb{u}) \dd[3]{\vb{r}}}_{W_{\vb{m}\vb{u}}} = 0
-    %\end{equation*}
-  %\end{block}
-  %\begin{columns}
-    %\column{0.7\textwidth}
-      %\begin{itemize}
-        %\item Grid discretization sufficient to recover $k_0 = \omega_0/c$ spatial variation
-        %\item Instantaneous ``propagation'' from source to grid
-        %\item Recover $\grad \div \vb{J}$ from $\grad \div Q_{i\vb{m}}$
-      %\end{itemize}
-
-    %\column{0.3\textwidth}
-      %\begin{block}{Least-squares fit}
-        %\begin{equation*}
-          %\sum_{\vb{u} \in C_i} W_{\vb{m}\vb{u}} \Lambda_{i \vb{u}} = Q_{i\vb{m}}
-        %\end{equation*}
-      %\end{block}
-  %\end{columns}
-%\end{frame}
+\begin{frame}{Units}
+  \begin{table}
+    \begin{tabular}{lll}
+      Quantity                 & Symbol            & Value                        \\ \hline \hline
+      Speed of light           & $c$               & \SI{300}{\micro\meter \per \pico\second} \\
+      Transition frequency     & $\omega_0$        & $\SI{1500}{\milli\eV}/\hbar$ \\
+      Transition dipole moment & $\vb{d}$          & \SI{10}{\elementarycharge\bohr} (uniform) \\
+      Relaxation times         & $T_{1}, T_{2}$    & \SIlist{10;20}{\pico\second} \\
+      Laser frequency          & $\omega_L$        & $\SI{1500}{\milli\eV}/\hbar$ \\
+      Laser wavevector         & $\vb{k}_L$        & $\omega_L/c$ ($\vb{k}_L \cdot \vb{d} = 0$) \\
+      Pulse width              & $\sigma/\omega_L$ & \SI{1}{\pico\second} \\ \hline
+      Integrator window        & $W$               & 20 \\
+      Corrector iterations     & N/A               & max 10 (usually 4-6) \\
+      Timestep                 & $\Delta t$        & \SI{0.5e-2}{\pico\second}
+    \end{tabular}
+  \end{table}
+\end{frame}
 
 \end{document}

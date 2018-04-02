@@ -1,0 +1,72 @@
+\usetikzlibrary{colorbrewer, decorations.pathreplacing}
+
+\definecolor{cbred}{HTML}{e41a1c}
+\definecolor{cbblue}{HTML}{377eb8}
+\definecolor{cbgreen}{HTML}{4daf4a}
+
+\begin{tikzpicture}[scale=0.5]
+\draw[step=1, black, thick, opacity=0.1] (-7,-8) grid (8, 8);
+
+\draw[thick, <->] (-2.95,-0.95) -- (-1.05, -0.95) node [midway, above] {$\Delta s$};
+\draw[thick, <->] (-3.05,-2.95) -- (-3.05, -1.05) node [midway, left] {$\Delta s$};
+
+\draw[thick, <->] (1.95,2.05) -- (1.95,3.95) node [midway, left] {$\Delta s$};
+\draw[thick, <->] (2.05,4.05) -- (3.95,4.05) node [midway, above] {$\Delta s$};
+
+\draw[thick, <->] (1.95,-3.95) -- (1.95,-1.05) node [midway, left] {$\Delta s + 1$};
+\draw[thick, <->] (3.95,-4.05) -- (2.05,-4.05) node [midway, above] {$\Delta s$};
+
+\fill[cbblue] (0,0) rectangle (1, 1);
+\fill[cbblue, opacity=0.2] (-1,-1) rectangle (2, 2);
+
+\foreach \x in {-1,...,2} {
+  \foreach \y in {-1,...,2} {
+
+    \draw[cbblue, fill=white, radius=0.1] (\x,\y) circle;
+
+  }
+}
+\fill[cbblue, radius=0.06] node[anchor=north east] (0, 0) {$\mathbf{r}_0$} circle;
+
+
+
+
+\fill[cbred] (-5,-5) rectangle (-4, -4);
+\fill[cbred, opacity=0.2] (-6,-6) rectangle (-3, -3);
+
+\foreach \x in {-6,-5,...,-3} {
+  \foreach \y in {-6, -5, ..., -3} {
+    \draw[cbred, fill=white, radius=0.1] (\x, \y) circle;
+  }
+}
+\fill[cbred, radius=0.06] (-5, -5) node[anchor=north east, xshift=-3, yshift=-3] {$\mathbf{r}_a$} circle;
+
+
+
+
+\fill[cbred] (5,5) rectangle (6, 6);
+\fill[cbred, opacity=0.2] (4, 4) rectangle (7, 7);
+
+\foreach \x in {4,...,7} {
+  \foreach \y in {4,...,7} {
+    \draw[cbred, fill=white, radius=0.1] (\x, \y) circle;
+  }
+}
+\fill[cbred, radius=0.06] (5, 5) node[anchor=north east] {$\mathbf{r}_b$} circle;
+
+
+
+
+\fill[cbgreen] (5,-6) rectangle (6, -5);
+\fill[cbgreen, opacity=0.2] (4, -7) rectangle (7, -4);
+
+\foreach \x in {4,...,7} {
+  \foreach \y in {-7,...,-4} {
+    \draw[cbgreen, fill=white, radius=0.1] (\x, \y) circle;
+  }
+}
+\fill[cbgreen, radius=0.06] (5, -6) node[anchor=north east] {$\mathbf{r}_c$} circle;
+
+\draw[thick, dashed] (-5.2,-5.2) rectangle (5.2, 5.2);
+
+\end{tikzpicture}
